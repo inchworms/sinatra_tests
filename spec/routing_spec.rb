@@ -35,7 +35,7 @@ describe "http methods" do
 			expect(response[2]).to eq ["a", "b", "c"]
 		end
 
-		it "/hello routes gets hello" do
+		it "/hello routes gets hello route" do
 			app = Sinatra.new do
 				get '/hello' do
 					[200, {}, '']
@@ -77,9 +77,29 @@ describe "http methods" do
 				end
 			end
 			response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/Hello/Horst', 'rack.input' => ''
-			p response
 			expect(response[2]).to eq ["Hello Horst!"]
 		end
+
+		it "throws error when not finding path" do
+			app = Sinatra.new do
+				get '/' do
+					[200, {}, ""]
+				end
+			end
+			response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/Hello', 'rack.input' => ''
+			expect(response[0]).to eq 404
+		end
+
+		# it "allows using unicode" do
+  #   	app = Sinatra.new do
+  #     	get '/f%C3%B6%C3%B6' do
+  #     		[200, {}, '']
+  #     	end
+  #   	end
+  #   	response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/f%C3%B6%C3%B6', 'rack.input' => ''
+		# 	p response.inspect
+	 #   	expect(response[0]).to eq 200
+  # 	end
 
 	end
 end
