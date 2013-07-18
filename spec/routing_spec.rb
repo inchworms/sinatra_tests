@@ -21,7 +21,40 @@ describe "http methods" do
 			response = app.call 'REQUEST_METHOD' => 'GET', 'rack.input' => ''
 			expect(response[0]).to eq 200
 		end
+
+		it "should return body as string" do
+			app = Sinatra.new do
+				get '/' do
+					[200, {}, 'Hello World']
+				end
+			end
+			response = app.call 'REQUEST_METHOD' => 'GET', 'rack.input' => ''
+			expect(response[2][0]).to eq 'Hello World'
+		end
+
+		it "should return body as array" do
+			app = Sinatra.new do
+				get '/' do
+					[200, {}, ["a", "b", "c"]]
+				end
+			end
+			response = app.call 'REQUEST_METHOD' => 'GET', 'rack.input' => ''
+			expect(response[2]).to eq ["a", "b", "c"]
+		end
+
+
+		it "/hello routes gets hello" do
+			app = Sinatra.new do
+				get '/hello' do
+					[200, {}, 'Hello']
+				end
+			end
+			response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/hello', 'rack.input' => ''
+			expect(response[0]).to eq 200
+		end
 	end
+
+
 end
 
 
