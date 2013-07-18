@@ -57,6 +57,9 @@ describe "http methods" do
 			expect(response[0]).to eq 200
 		end
 
+
+		
+
 		it "returns empty array when body is nil" do
 			app = Sinatra.new do
 				get '/' do
@@ -69,13 +72,13 @@ describe "http methods" do
 
 		it "supports params like /hello/:name" do
 			app = Sinatra.new do
-				get '/hello/:name' do
-					[200, {}, [params[:name]]]
+				get '/Hello/:name' do
+					[200, {}, ["Hello #{params[:name]}!"]]
 				end
 			end
-			response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/hello/horst', 'rack.input' => ''
+			response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/Hello/Horst', 'rack.input' => ''
 			p response
-			expect(response[2]).to eq ["horst"]
+			expect(response[2]).to eq ["Hello Horst!"]
 		end
 
 	end
