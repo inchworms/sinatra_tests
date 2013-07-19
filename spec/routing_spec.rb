@@ -2,15 +2,12 @@ require 'sinatra'
 require 'stringio'
 
 describe "http methods" do 
+
 	# these tests should include 
 	# get, post, delete, head, put, options (all part of rfc2616)
 	# patch
 	# link, unlink
 
-			#context returning full rack response [200, {}, ["body"]]
-			#context returning the body as a string "Hello World!"
-			#context returning the body as an array ["a", "b", "c"]
-			#context returning the body as an io object File.open("source_file")
 	describe "get" do
 
 		context "/" do
@@ -50,7 +47,7 @@ describe "http methods" do
 			let(:response) { @app.call 'REQUEST_METHOD' => 'GET', 'rack.input' => '' }
 
 			it("returns 200 as Status") {expect(response[0]).to eq 200}
-			it("returns the object's body") {expect(response.body).to eq "Hello World"}
+			it("returns the object's body") {expect(response[2].read).to eq "Hello World"}
 		end
 
 		it "returns empty array when body is nil" do
@@ -83,28 +80,7 @@ describe "http methods" do
 			expect(response[0]).to eq 404
 		end
 
-		# it "allows using unicode" do
-  #   	app = Sinatra.new do
-  #     	get '/f%C3%B6%C3%B6' do
-  #     		[200, {}, '']
-  #     	end
-  #   	end
-  #   	response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/f%C3%B6%C3%B6', 'rack.input' => ''
-		# 	p response.inspect
-	 #   	expect(response[0]).to eq 200
-  # 	end
-
 	end
 end
 
-
-# describe "settings" do
-# these tests should include setting status, body, headers
-#end
-
-
-#describe "route flow" do
-#  these tests should include before and after filters
-#  and passing and halting
-#end
 
