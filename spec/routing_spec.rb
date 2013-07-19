@@ -19,9 +19,9 @@ describe "http methods" do
 			end
 			let(:response) { get '/' }
 
-			it("returns 201 as a status") { expect(response.status).to eq 201 }
-			it("returns the complete body as string") { expect(response.body).to eq 'abc' }
-			it("sets a header as foo") {expect(response.header['Header']).to eq 'foo'}
+			it("returns 201 as a status") { expect(response.status).to be == 201 }
+			it("returns the complete body as string") { expect(response.body).to be == 'abc' }
+			it("sets a header as foo") { expect(response.header['Header']).to be == 'foo' }
 		end
 
 		it "/hello routes gets hello route" do
@@ -31,7 +31,7 @@ describe "http methods" do
 				end
 			end
 			response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/hello', 'rack.input' => ''
-			expect(response[0]).to eq 200
+			expect(response[0]).to be == 200
 		end
 
 		context "returning an IO-like object" do
@@ -45,8 +45,8 @@ describe "http methods" do
 
 			let(:response) { @app.call 'REQUEST_METHOD' => 'GET', 'rack.input' => '' }
 
-			it("returns 200 as Status") {expect(response[0]).to eq 200}
-			it("returns the object's body") {expect(response[2].read).to eq "Hello World"}
+			it("returns 200 as Status") { expect(response[0]).to be == 200 }
+			it("returns the object's body") { expect(response[2].read).to eq "Hello World" }
 		end
 
 		it "returns empty array when body is nil" do
@@ -56,7 +56,7 @@ describe "http methods" do
 				end
 			end
 			response = app.call 'REQUEST_METHOD' => 'GET', 'rack.input' => ''
-			expect(response[2]).to eq []
+			expect(response[2]).to be == []
 		end
 
 		it "supports params like /hello/:name" do
@@ -66,17 +66,20 @@ describe "http methods" do
 				end
 			end
 			response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/Hello/Horst', 'rack.input' => ''
-			expect(response[2]).to eq ["Hello Horst!"]
+			expect(response[2]).to be == ["Hello Horst!"]
 		end
 
-		it "throws error when not finding path" do
-			app = Sinatra.new do
-				get '/' do
-					[200, {}, ""]
-				end
+		context "missing routes" do
+			let(:response) { get '/noroute' }
+			let(:app) { Sinatra.new }
+
+			it("sets X-Cascade header when no route satisfies the request") { expect(response.header['X-Cascade']).to be == 'pass' }
+			it("throws an 404") { expect(response.status).to be == 404 }
+
+			it "does not set X-Cascade header when x_cascade has been disabled" do
+				app.disable :x_cascade 
+				expect(response.header).to_not include("X-Cascade")
 			end
-			response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/Hello', 'rack.input' => ''
-			expect(response[0]).to eq 404
 		end
 
 	end
