@@ -1,5 +1,6 @@
 require 'sinatra'
 require 'stringio'
+require 'support/rack'
 
 describe "http methods" do 
 
@@ -11,18 +12,16 @@ describe "http methods" do
 	describe "get" do
 
 		context "/" do
-			before(:each) do
-				@app = Sinatra.new do
-					get '/' do
-						[200, {}, ["a", "b", "c"]]
-					end
+			let(:app) do
+				Sinatra.new do
+					get('/') { [201, { 'Header' => 'foo' }, ["a", "b", "c"]] }
 				end
 			end
-			let(:response) { @app.call('REQUEST_METHOD' => 'GET', 'rack.input' => '') }
+			let(:response) { get '/' }
 
-			it("returns 200 as a status") { expect(response[0]).to eq 200 }
-			it("returns body as string") { expect(response[2][0]).to eq 'a' }
-			it("returns body as array") { expect(response[2]).to eq ["a", "b", "c"] }
+			it("returns 201 as a status") { expect(response.status).to eq 201 }
+			it("returns the complete body as string") { expect(response.body).to eq 'abc' }
+			it("sets a header as foo") {expect(response.header['Header']).to eq 'foo'}
 		end
 
 		it "/hello routes gets hello route" do
@@ -82,5 +81,6 @@ describe "http methods" do
 
 	end
 end
+
 
 
