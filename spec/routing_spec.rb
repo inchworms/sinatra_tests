@@ -87,7 +87,7 @@ describe "http methods" do
 		# raise Sinatra::NotFound
 			let(:response) { get '/' }
 
-			it "recalculates body length correctly i.e. nil for 404 response" do
+			it "recalculates body length correctly for 404 response" do
 				expect(response.body.length).to be == (response.header['Content-Length']).to_i
 				p "Why #{response.status}??????"
 			end
