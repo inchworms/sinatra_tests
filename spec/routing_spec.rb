@@ -18,6 +18,8 @@ describe "http methods" do
 				end
 			end
 			let(:response) { get '/' }
+			# does the same as:
+			# let(:response) { @app.call 'REQUEST_METHOD' => 'GET', 'rack.input' => '' }
 
 			it("returns 201 as a status") { expect(response.status).to be == 201 }
 			it("returns the complete body as string") { expect(response.body).to be == 'abc' }
@@ -27,32 +29,31 @@ describe "http methods" do
 		it "/hello routes gets hello route" do
 			app = Sinatra.new do
 				get '/hello' do
-					[200, {}, '']
+					[201, {}, '']
 				end
 			end
 			response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/hello', 'rack.input' => ''
-			expect(response[0]).to be == 200
+			expect(response[0]).to be == 201
 		end
 
 		context "returning an IO-like object" do
-			before do
-				@app = Sinatra.new do
+			let(:app) do
+				Sinatra.new do
 					get '/' do
 						StringIO.new("Hello World")
 					end
 				end
 			end
+			let(:response) { get '/' }
 
-			let(:response) { @app.call 'REQUEST_METHOD' => 'GET', 'rack.input' => '' }
-
-			it("returns 200 as Status") { expect(response[0]).to be == 200 }
-			it("returns the object's body") { expect(response[2].read).to eq "Hello World" }
+			it("returns 200 as Status") { expect(response.status).to be == 200 } #TODO? specify 201?
+ 			it("returns the object's body") { expect(response.body).to eq "Hello World" }
 		end
 
 		it "returns empty array when body is nil" do
 			app = Sinatra.new do
 				get '/' do
-					[200, {}, nil]
+					[201, {}, nil]
 				end
 			end
 			response = app.call 'REQUEST_METHOD' => 'GET', 'rack.input' => ''
@@ -62,7 +63,7 @@ describe "http methods" do
 		it "supports params like /hello/:name" do
 			app = Sinatra.new do
 				get '/Hello/:name' do
-					[200, {}, ["Hello #{params[:name]}!"]]
+					[201, {}, ["Hello #{params[:name]}!"]]
 				end
 			end
 			response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/Hello/Horst', 'rack.input' => ''
@@ -84,14 +85,40 @@ describe "http methods" do
 
 		context "404" do
 			let(:app) {Sinatra.new} 
-		# raise Sinatra::NotFound
 			let(:response) { get '/' }
 
 			it "recalculates body length correctly for 404 response" do
-				expect(response.body.length).to be == (response.header['Content-Length']).to_i
-				p "Why #{response.status}??????"
+				expect(response.body.length).to be == (response.header['Content-Length']).to_i #DOTO Why 404?
 			end
 		end
 
+		context "unicode" do
+			let(:app) do
+				Sinatra.new do
+					get '/f%C3%B6%C3%B6' do
+						[201, {}, ""]
+					end
+				end 
+			end
+			let(:response) { get '/f%C3%B6%C3%B6' }
+
+			it "allows using unicode" do
+				expect(response.status).to be == 201
+			end
+
+			let(:app) do
+				Sinatra.new do
+					get '/föö' do
+						[201, {}, ""]
+					end
+				end 
+			end
+			let(:response) { get '/f%C3%B6%C3%B6' }
+
+			it "allows using unicode2" do
+				expect(response.status).to be == 201
+			end
+		end
+	
 	end
 end
