@@ -22,8 +22,8 @@ TODO:
 #supports mixing multiple splat params like /*/foo/*/*
 #supports mixing named and splat params like /:foo/*
 #matches a dot ('.') as part of a named param
-#matches a literal dot ('.') outside of named params
-#literally matches dollar sign in paths
+#matches a literal dot ('.') outside of named param
+ssu#bliterally matches dollar sign in paths
 #literally matches plus sign in paths
 #does not convert plus sign into space as the value of a named param
 #literally matches parens in paths
