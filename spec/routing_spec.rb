@@ -1,4 +1,5 @@
 require 'sinatra'
+require 'stringio'
 
 describe "http methods" do 
 	# these tests should include 
@@ -12,27 +13,19 @@ describe "http methods" do
 			#context returning the body as an io object File.open("source_file")
 	describe "get" do
 
-		before(:each) do 
-			@app = Sinatra.new do 
-				get '/' do
-					[200, {}, ["a", "b", "c"]]
+		context "/" do
+			before(:each) do
+				@app = Sinatra.new do
+					get '/' do
+						[200, {}, ["a", "b", "c"]]
+					end
 				end
 			end
-		end
+			let(:response) { @app.call('REQUEST_METHOD' => 'GET', 'rack.input' => '') }
 
-		it "returns 200 as a status" do
-			response = @app.call 'REQUEST_METHOD' => 'GET', 'rack.input' => ''
-			expect(response[0]).to eq 200
-		end
-
-		it "returns body as string" do
-			response = @app.call 'REQUEST_METHOD' => 'GET', 'rack.input' => ''
-			expect(response[2][0]).to eq 'a'
-		end
-
-		it "returns body as array" do
-			response = @app.call 'REQUEST_METHOD' => 'GET', 'rack.input' => ''
-			expect(response[2]).to eq ["a", "b", "c"]
+			it("returns 200 as a status") { expect(response[0]).to eq 200 }
+			it("returns body as string") { expect(response[2][0]).to eq 'a' }
+			it("returns body as array") { expect(response[2]).to eq ["a", "b", "c"] }
 		end
 
 		it "/hello routes gets hello route" do
@@ -45,20 +38,20 @@ describe "http methods" do
 			expect(response[0]).to eq 200
 		end
 
-		it "return yield call" do
-			app = Sinatra.new do
-				get '/' do
-					res = lambda { 'Hello World' }
-      	  def res.each ; yield call ; end
-        	return res
-        end
-      end
-			response = app.call 'REQUEST_METHOD' => 'GET', 'rack.input' => ''
-			expect(response[0]).to eq 200
+		context "returning an IO-like object" do
+			before do
+				@app = Sinatra.new do
+					get '/' do
+						StringIO.new("Hello World")
+					end
+				end
+			end
+
+			let(:response) { @app.call 'REQUEST_METHOD' => 'GET', 'rack.input' => '' }
+
+			it("returns 200 as Status") {expect(response[0]).to eq 200}
+			it("returns the object's body") {expect(response.body).to eq "Hello World"}
 		end
-
-
-		
 
 		it "returns empty array when body is nil" do
 			app = Sinatra.new do
