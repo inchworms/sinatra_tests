@@ -70,8 +70,8 @@ describe "http methods" do
 		end
 
 		context "missing routes" do
-			let(:response) { get '/noroute' }
 			let(:app) { Sinatra.new }
+			let(:response) { get '/noroute' }
 
 			it("sets X-Cascade header when no route satisfies the request") { expect(response.header['X-Cascade']).to be == 'pass' }
 			it("throws an 404") { expect(response.status).to be == 404 }
@@ -82,8 +82,16 @@ describe "http methods" do
 			end
 		end
 
+		context "404" do
+			let(:app) {Sinatra.new} 
+		# raise Sinatra::NotFound
+			let(:response) { get '/' }
+
+			it "recalculates body length correctly i.e. nil for 404 response" do
+				expect(response.body.length).to be == (response.header['Content-Length']).to_i
+				p "Why #{response.status}??????"
+			end
+		end
+
 	end
 end
-
-
-
