@@ -144,8 +144,21 @@ describe "http methods" do
         expect(response[0]).to be == 404
         expect(response[1]["Content-Type"]).to be == "text/html;charset=utf-8"
       end
-
     end
+
+    context "PATH_INFO"
+      it 'matches empty PATH_INFO to "/" if no route is defined for ""' do
+        app = Sinatra.new do
+          get '/' do
+            [201, {}, '']
+          end
+        end
+
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '', 'rack.input' => ''
+        expect(response[0]).to be == 201
+      end
 
   end
 end
+
+
