@@ -63,16 +63,6 @@ describe "http methods" do
       expect(response[2]).to be == []
     end
 
-    it "supports params like /hello/:name" do
-      app = Sinatra.new do
-        get '/Hello/:name' do
-          [201, {}, ["Hello #{params[:name]}!"]]
-        end
-      end
-      response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/Hello/Horst', 'rack.input' => ''
-      expect(response[2]).to be == ["Hello Horst!"]
-    end
-
     context "missing routes" do
       let(:app) { Sinatra.new }
       let(:response) { get '/noroute' }
@@ -174,47 +164,61 @@ describe "http methods" do
       end
     end
 
-    context '/' do
+    context 'takes multiple definitions of a route' do
       it 'takes multiple definitions of a route with HTTP_USER_AGENT' do
         app = Sinatra.new do
           user_agent(/Mozilla/)
-          get '/foo' do
+          get '/' do
             [201, {}, 'Mozilla']
           end
-          get '/foo' do
+          get '/' do
             [201, {}, 'not Mozilla']
           end
         end
 
-        response = app.call 'REQUEST_METHOD' => 'GET', 'HTTP_USER_AGENT' => 'Mozilla', 'PATH_INFO' => 'foo', 'rack.input' => ''
-        # expect(response[1]['HTTP_USER_AGENT']).to be == ['Mozilla']
+        response = app.call 'REQUEST_METHOD' => 'GET', 'HTTP_USER_AGENT' => 'Mozilla', 'rack.input' => ''
         expect(response[2]).to be == ['Mozilla']
 
-        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => 'foo', 'rack.input' => ''
-        # expect(response[1]['HTTP_USER_AGENT']).to be == ['']
+        response = app.call 'REQUEST_METHOD' => 'GET', 'rack.input' => ''
         expect(response[2]).to be == ['not Mozilla']
+      end
+    end
+
+    context "params" do
+
+      it "supports params like /hello/:name" do
+        app = Sinatra.new do
+          get '/Hello/:name' do
+            [201, {}, ["Hello #{params[:name]}!"]]
+          end
+        end
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/Hello/Horst', 'rack.input' => ''
+        expect(response[2]).to be == ["Hello Horst!"]
+      end
+
+      it "exposes params with indifferent hash" do
+        app = Sinatra.new do
+          get '/:foo' do
+            bar = params['foo']
+            bar = params[:foo]
+            [201, {}, 'ok']
+          end
+        end
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar', 'rack.input' => ''
+        expect(response[2]).to be == ['ok']
+      end
+
+      it "merges named params and query string params in params" do
+        app = Sinatra.new do
+          get '/:foo' do
+            bar = params['foo']
+            biz = params[:bar]
+            [201, {}, '']
+          end
+        end
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/biz', 'rack.input' => ''
+        expect(response[0]).to be == 201
       end
     end
   end
 end
-
-  # it 'takes multiple definitions of a route' do
-  #   mock_app {
-  #     user_agent(/Foo/)
-  #     get '/foo' do
-  #       'foo'
-  #     end
-
-  #     get '/foo' do
-  #       'not foo'
-  #     end
-  #   }
-
-  #   get '/foo', {}, 'HTTP_USER_AGENT' => 'Foo'
-  #   assert ok?
-  #   assert_equal 'foo', body
-
-  #   get '/foo'
-  #   assert ok?
-  #   assert_equal 'not foo', body
-  # end

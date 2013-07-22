@@ -14,9 +14,11 @@ CONTEXT: PATH_INFO
 #matches empty PATH_INFO to "/" if no route is defined for ""
 #matches empty PATH_INFO to "" if a route is defined for ""
 
-
-TODO:
+CONTEXT: takes multiple definitions of a route
 #takes multiple definitions of a route
+
+CONTEXT: params can be string or keys
+TODO:
 #exposes params with indifferent hash
 #merges named params and query string params in params
 #supports optional named params like /?:foo?/?:bar?
