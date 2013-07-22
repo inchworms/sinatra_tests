@@ -1,6 +1,31 @@
-CONTEXT: 404
+GET REQUESTS
+
+-----------
+
+CONTEXT: basic '/' route
+#returns 201 as a status
+#returns the complete body as string
+#sets a header as foo
+#/hello routes gets hello route
+
+-------------
+
+CONTEXT: returning an IO-like object
+#returns 200 as Status
+#returns the object's body
+
+---------------
+
+CONTEXT: body responses
+#returns empty array when body is nil
+
+----------------
+
+CONTEXT: missing routes
 #404s and sets X-Cascade header when no route satisfies the request
 #404s and does not set X-Cascade header when no route satisfies the request and x_cascade has been disabled
+
+CONTEXT: 404
 #recalculates body length correctly for 404 response
 -----------
 
