@@ -1,6 +1,9 @@
+# encoding: utf-8
+
 require 'sinatra'
 require 'stringio'
 require 'support/rack'
+
 
 describe "http methods" do 
 
