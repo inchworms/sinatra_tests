@@ -12,10 +12,10 @@ CONTEXT: unicode
 
 CONTEXT: PATH_INFO
 #matches empty PATH_INFO to "/" if no route is defined for ""
+#matches empty PATH_INFO to "" if a route is defined for ""
 
 
 TODO:
-#matches empty PATH_INFO to "" if a route is defined for ""
 #takes multiple definitions of a route
 #exposes params with indifferent hash
 #merges named params and query string params in params

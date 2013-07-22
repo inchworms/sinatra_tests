@@ -161,7 +161,6 @@ describe "http methods" do
       it 'matches empty PATH_INFO to "" if a route is defined for ""' do
         app = Sinatra.new do
           # disable :protection   DOTO: Whats a diasabled protection? see https://github.com/sinatra/sinatra/blob/master/test/routing_test.rb
-
           get '/' do
             [201, {}, 'not working']
           end
@@ -174,5 +173,48 @@ describe "http methods" do
         expect(response[2]).to be == ['working']
       end
     end
+
+    context '/' do
+      it 'takes multiple definitions of a route with HTTP_USER_AGENT' do
+        app = Sinatra.new do
+          user_agent(/Mozilla/)
+          get '/foo' do
+            [201, {}, 'Mozilla']
+          end
+          get '/foo' do
+            [201, {}, 'not Mozilla']
+          end
+        end
+
+        response = app.call 'REQUEST_METHOD' => 'GET', 'HTTP_USER_AGENT' => 'Mozilla', 'PATH_INFO' => 'foo', 'rack.input' => ''
+        # expect(response[1]['HTTP_USER_AGENT']).to be == ['Mozilla']
+        expect(response[2]).to be == ['Mozilla']
+
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => 'foo', 'rack.input' => ''
+        # expect(response[1]['HTTP_USER_AGENT']).to be == ['']
+        expect(response[2]).to be == ['not Mozilla']
+      end
+    end
   end
 end
+
+  # it 'takes multiple definitions of a route' do
+  #   mock_app {
+  #     user_agent(/Foo/)
+  #     get '/foo' do
+  #       'foo'
+  #     end
+
+  #     get '/foo' do
+  #       'not foo'
+  #     end
+  #   }
+
+  #   get '/foo', {}, 'HTTP_USER_AGENT' => 'Foo'
+  #   assert ok?
+  #   assert_equal 'foo', body
+
+  #   get '/foo'
+  #   assert ok?
+  #   assert_equal 'not foo', body
+  # end
