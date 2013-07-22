@@ -17,11 +17,13 @@ CONTEXT: PATH_INFO
 CONTEXT: takes multiple definitions of a route
 #takes multiple definitions of a route
 
-CONTEXT: params can be string or keys
-TODO:
+CONTEXT: params
+#supports named params like /hello/:person
 #exposes params with indifferent hash
 #merges named params and query string params in params
 #supports optional named params like /?:foo?/?:bar?
+
+TODO:
 #supports named captures like %r{/hello/(?<person>[^/?#]+)} on Ruby >= 1.9
 #supports optional named captures like %r{/page(?<format>.[^/?#]+)?} on Ruby >= 1.9
 #does not concatinate params with the same name

@@ -12,9 +12,10 @@ describe "http methods" do
   # patch
   # link, unlink
 
-  describe "get" do
+  describe "get requests" do
 
-    context "/" do
+    context "basic '/' route" do
+    
       let(:app) do
         Sinatra.new do
           get('/') { [201, { 'Header' => 'foo' }, ["a", "b", "c"]] }
@@ -27,19 +28,22 @@ describe "http methods" do
       it("returns 201 as a status") { expect(response.status).to be == 201 }
       it("returns the complete body as string") { expect(response.body).to be == 'abc' }
       it("sets a header as foo") { expect(response.header['Header']).to be == 'foo' }
+    
+      it "/hello routes gets hello route" do
+        app = Sinatra.new do
+          get '/hello' do
+            [201, {}, '']
+          end
+        end
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/hello', 'rack.input' => ''
+        expect(response[0]).to be == 201
+      end
+
     end
 
-    it "/hello routes gets hello route" do
-      app = Sinatra.new do
-        get '/hello' do
-          [201, {}, '']
-        end
-      end
-      response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/hello', 'rack.input' => ''
-      expect(response[0]).to be == 201
-    end
 
     context "returning an IO-like object" do
+     
       let(:app) do
         Sinatra.new do
           get '/' do
@@ -53,14 +57,16 @@ describe "http methods" do
       it("returns the object's body") { expect(response.body).to eq "Hello World" }
     end
 
-    it "returns empty array when body is nil" do
-      app = Sinatra.new do
-        get '/' do
-          [201, {}, nil]
+    context "body responses" do
+      it "returns empty array when body is nil" do
+        app = Sinatra.new do
+          get '/' do
+            [201, {}, nil]
+          end
         end
+        response = app.call 'REQUEST_METHOD' => 'GET', 'rack.input' => ''
+        expect(response[2]).to be == []
       end
-      response = app.call 'REQUEST_METHOD' => 'GET', 'rack.input' => ''
-      expect(response[2]).to be == []
     end
 
     context "missing routes" do
@@ -218,6 +224,22 @@ describe "http methods" do
         end
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/biz', 'rack.input' => ''
         expect(response[0]).to be == 201
+      end
+
+      it "supports optional named params like /?:foo?/?:bar?" do
+        app = Sinatra.new do
+          get '/?:foo?/?:bar?' do
+            [201, {}, ["foo=#{params[:foo]};bar=#{params[:bar]}"]]
+          end
+        end
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/hello/world', 'rack.input' => ''
+        expect(response[2]).to be == ["foo=hello;bar=world"]
+
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/hello', 'rack.input' => ''
+        expect(response[2]).to be == ["foo=hello;bar="]
+
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'rack.input' => ''
+        expect(response[2]).to be == ["foo=;bar="]
       end
     end
   end
