@@ -53,7 +53,7 @@ describe "http methods" do
       end
       let(:response) { get '/' }
 
-      it("returns 200 as Status") { expect(response.status).to be == 200 } #TODO? specify 201?
+      it("returns 200 as Status") { expect(response.status).to be == 200 }
       it("returns the object's body") { expect(response.body).to eq "Hello World" }
     end
 
@@ -91,44 +91,39 @@ describe "http methods" do
       end
     end
 
-    context "unicode" do
-      let(:app) do
-        Sinatra.new do
-          get '/f%C3%B6%C3%B6' do
-            [201, {}, ""]
+    context "unicode in routes" do
+      {'percent encoded' => '/f%C3%B6%C3%B6', 'utf-8 literal' => '/föö'}.each do |kind, unicode_route|
+        context kind do
+          let(:app) do
+            Sinatra.new do
+              get unicode_route do
+                [201, {}, ""]
+              end
+            end
+          end
+          let(:response) { get '/f%C3%B6%C3%B6' }
+
+          it "handles the route" do
+            expect(response.status).to be == 201
           end
         end
       end
-      let(:response) { get '/f%C3%B6%C3%B6' }
+    end
 
-      it "allows using unicode" do
-        expect(response.status).to be == 201
-      end
-
-      let(:app) do
-        Sinatra.new do
-          get '/föö' do
-            [201, {}, ""]
-          end
-        end
-      end
-      let(:response) { get '/f%C3%B6%C3%B6' }
-
-      it "allows using another type of unicode" do
-        expect(response.status).to be == 201
-      end
-
+    context "percent escaping" do
       it "handles encoded slashes correctly" do
         app = Sinatra.new do
           get '/:a' do
             [201, {}, "#{params[:a]}"] 
           end
         end
+
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo%2Fbar', 'rack.input' => ''
         expect(response[2]).to be == ["foo/bar"]
       end
+    end
 
-
+    context "error handlers" do
       it "overrides the content-type in error handlers" do
         app = Sinatra.new do
           get '/' do
@@ -142,7 +137,7 @@ describe "http methods" do
       end
     end
 
-    context "PATH_INFO" do
+    context "empty PATH_INFO" do
       it 'matches empty PATH_INFO to "/" if no route is defined for ""' do
         app = Sinatra.new do
           get '/' do
@@ -156,7 +151,6 @@ describe "http methods" do
 
       it 'matches empty PATH_INFO to "" if a route is defined for ""' do
         app = Sinatra.new do
-          # disable :protection   DOTO: Whats a diasabled protection? see https://github.com/sinatra/sinatra/blob/master/test/routing_test.rb
           get '/' do
             [201, {}, 'not working']
           end
@@ -170,8 +164,8 @@ describe "http methods" do
       end
     end
 
-    context 'takes multiple definitions of a route' do
-      it 'takes multiple definitions of a route with HTTP_USER_AGENT' do
+    context 'multiple definitions of a route' do
+      it 'works with HTTP_USER_AGENT' do
         app = Sinatra.new do
           user_agent(/Mozilla/)
           get '/' do
@@ -191,7 +185,6 @@ describe "http methods" do
     end
 
     context "params" do
-
       it "supports params like /hello/:name" do
         app = Sinatra.new do
           get '/Hello/:name' do
