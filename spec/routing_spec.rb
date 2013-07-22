@@ -118,9 +118,34 @@ describe "http methods" do
       end
       let(:response) { get '/f%C3%B6%C3%B6' }
 
-      it "allows using unicode2" do
+      it "allows using another type of unicode" do
         expect(response.status).to be == 201
       end
+
+      it "handles encoded slashes correctly" do
+        app = Sinatra.new do
+          get '/:a' do
+            [201, {}, "#{params[:a]}"] 
+          end
+        end
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo%2Fbar', 'rack.input' => ''
+        expect(response[2]).to be == ["foo/bar"]
+      end
+
+
+      it "overrides the content-type in error handlers" do
+        app = Sinatra.new do
+          get '/' do
+            [201, { 'Content-Type' => 'text/plain'}, '']
+          end
+        end
+
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/nonexistingroute', 'rack.input' => ''
+        expect(response[0]).to be == 404
+        expect(response[1]["Content-Type"]).to be == "text/html;charset=utf-8"
+      end
+
     end
+
   end
 end

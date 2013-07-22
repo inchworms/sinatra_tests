@@ -3,11 +3,12 @@
 
 #recalculates body length correctly for 404 response
 
-TODO:
-
 #allows using unicode
 #it handles encoded slashes correctly
 #overrides the content-type in error handlers
+
+TODO:
+
 
 #matches empty PATH_INFO to "/" if no route is defined for ""
 #matches empty PATH_INFO to "" if a route is defined for ""
