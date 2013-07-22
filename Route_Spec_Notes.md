@@ -1,16 +1,20 @@
+CONTEXT: 404
 #404s and sets X-Cascade header when no route satisfies the request
 #404s and does not set X-Cascade header when no route satisfies the request and x_cascade has been disabled
-
 #recalculates body length correctly for 404 response
+-----------
 
+CONTEXT: unicode
 #allows using unicode
 #it handles encoded slashes correctly
 #overrides the content-type in error handlers
+--------------------
+
+CONTEXT: PATH_INFO
+#matches empty PATH_INFO to "/" if no route is defined for ""
+
 
 TODO:
-
-
-#matches empty PATH_INFO to "/" if no route is defined for ""
 #matches empty PATH_INFO to "" if a route is defined for ""
 #takes multiple definitions of a route
 #exposes params with indifferent hash
