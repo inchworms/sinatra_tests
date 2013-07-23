@@ -59,13 +59,13 @@ CONTEXT: pattern matching
 ----------------------------------------
 
 CONTEXT: special characters 
+#matches a dot ('.') as part of a named param
+#matches a literal dot ('.') outside of named param
 
 
 
 TODO:
-#matches a dot ('.') as part of a named param
-#matches a literal dot ('.') outside of named param
-ssu#bliterally matches dollar sign in paths
+#bliterally matches dollar sign in paths
 #literally matches plus sign in paths
 #does not convert plus sign into space as the value of a named param
 #literally matches parens in paths

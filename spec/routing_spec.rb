@@ -87,7 +87,7 @@ describe "http methods" do
       let(:response) { get '/' }
 
       it "recalculates body length correctly for 404 response" do
-        expect(response.body.length).to be == (response.header['Content-Length']).to_i #DOTO Why
+        expect(response.body.length).to be == (response.header['Content-Length']).to_i
       end
     end
 
@@ -238,10 +238,9 @@ describe "http methods" do
 
     context "pattern matching" do
       it "supports named captures like %r{/hello/(?<person>[^/?#]+)}" do
-        # next if RUBY_VERSION < '1.9'
         app = Sinatra.new do
           get Regexp.new('/hello/(?<person>[^/?#]+)') do
-            [201, {}, ["Hello #{params['person']}"]] 
+            [201, {}, ["Hello #{params['person']}"]]
           end
         end
         
@@ -250,7 +249,6 @@ describe "http methods" do
       end
 
       it "supports optional named captures like %r{/page(?<format>.[^/?#]+)?}" do
-      #     next if RUBY_VERSION < '1.9'
         app = Sinatra.new do
          get Regexp.new('/page(?<format>.[^/?#]+)?') do
           [201, {}, ["format=#{params[:format]}"]]
@@ -301,7 +299,7 @@ describe "http methods" do
             [201, {}, ""]
           end
         end
-        
+
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo/bar/baz', 'rack.input' => ''
         expect(response[0]).to be == 201
       end
@@ -329,6 +327,17 @@ describe "http methods" do
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/user@example.com/name', 'rack.input' => ''
         expect(response[0]).to be == 201
         expect(response[2]).to be == ['user@example.com']
+      end
+
+      it "matches a literal dot ('.') outside of named params" do
+        app = Sinatra.new do
+          get '/:file.:ext' do
+            [201, {}, ""]
+          end
+        end
+
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/pony.jpg', 'rack.input' => ''
+        expect(response[0]).to be == 201
       end
     end
 
