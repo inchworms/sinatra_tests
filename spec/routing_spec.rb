@@ -367,17 +367,29 @@ describe "http methods" do
 
       it "literally matches plus sign in paths" do
         app = Sinatra.new do
-          get '/fo+o/' do
+          get '/fo+o' do
             [201, {}, ""]
           end
         end
 
-        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/fo%2Bo/', 'rack.input' => ''
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/fo%2Bo', 'rack.input' => ''
         expect(response[0]).to be == 201
 
-        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foooooooo/', 'rack.input' => ''
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foooooooo', 'rack.input' => ''
         expect(response[0]).to be == 404
       end
+
+      it "does not convert plus sign into space as the value of a named param" do
+        app = Sinatra.new do
+          get '/:foo' do
+            [201, {}, "#{params[:foo]}"]
+          end
+        end
+
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/baz+bar', 'rack.input' => ''
+        expect(response[2]).to be == ["baz+bar"]
+      end
+
 
     end
 
@@ -385,3 +397,13 @@ describe "http methods" do
 end
 
 
+  # it "does not convert plus sign into space as the value of a named param" do
+  #   mock_app do
+  #     get '/:test' do
+  #       params["test"]
+  #     end
+  #   end
+  #   get '/bob+ross'
+  #   assert ok?
+  #   assert_equal 'bob+ross', body
+  # end
