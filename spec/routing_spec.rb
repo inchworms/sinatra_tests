@@ -229,15 +229,23 @@ describe "http methods" do
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'rack.input' => ''
         expect(response[2]).to be == ["foo=;bar="]
       end
-
-      context "nested params" do
+      #DOTO: Don't knwo if thats ok, because in the unit test, they set params(look at the routing_test.rb on github)
+      context "params" do
         let(:app) do
           Sinatra.new do
-            get ('/testme') { [201, {}, ""] }
+            get ('/foo') { [201, {}, "#{params}"] }
           end
         end
-        let(:response){ get '/testme?bar[foo]=baz' }
+        let(:response){ get '/foo?bar[foo]=baz' }
         it("exposes nested params with indifferent hash") { expect(response.status).to be == 201 }
+
+        let(:response){ get '/foo?bar[][foo]=baz' }
+        it("exposes params nested within arrays with indifferent hash") { expect(response.status).to be == 201 }
+
+        let(:response){ get '/foo?bar[]=A&bar[]=B' }
+        it("supports arrays within params") { expect(response.status).to be == 201 }
+        # DOTO: dont  know if that is necesary, but here I can see, that sinatra puts the params in params conrrectly
+        it("supports arrays within params") { expect(response.body).to be == "{\"bar\"=>[\"A\", \"B\"]}" }
       end
     end
 
