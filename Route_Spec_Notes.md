@@ -65,11 +65,11 @@ CONTEXT: special characters
 #literally matches dollar sign in paths
 #literally matches plus sign in paths
 #does not convert plus sign into space as the value of a named param
+#literally matches parens in paths
 
 
 
 TODO:
-#literally matches parens in paths
 #supports basic nested params
 #exposes nested params with indifferent hash
 #exposes params nested within arrays with indifferent hash

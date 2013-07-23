@@ -390,20 +390,18 @@ describe "http methods" do
         expect(response[2]).to be == ["baz+bar"]
       end
 
+      it "literally matches parenthese in paths" do
+        app = Sinatra.new do
+          get '/foo(bar)' do
+            [201, {}, ""]
+          end
+        end
+
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo(bar)', 'rack.input' => ''
+        expect(response[0]).to be == 201
+      end
 
     end
 
   end
 end
-
-
-  # it "does not convert plus sign into space as the value of a named param" do
-  #   mock_app do
-  #     get '/:test' do
-  #       params["test"]
-  #     end
-  #   end
-  #   get '/bob+ross'
-  #   assert ok?
-  #   assert_equal 'bob+ross', body
-  # end
