@@ -48,10 +48,10 @@ CONTEXT: params
 #supports optional named params like /?:foo?/?:bar?
 #supports named captures like %r{/hello/(?<person>[^/?#]+)} on Ruby >= 1.9
 #supports optional named captures like %r{/page(?<format>.[^/?#]+)?} on Ruby >= 1.9
+#does not concatinate params with the same name
 ---------------
 
 TODO:
-#does not concatinate params with the same name
 #supports single splat params like /*
 #supports mixing multiple splat params like /*/foo/*/*
 #supports mixing named and splat params like /:foo/*

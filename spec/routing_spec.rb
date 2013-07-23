@@ -275,7 +275,6 @@ describe "http methods" do
         let(:response){ get '/a?foo=b' }
         it("will take the first param only") { expect(response.body).to be == 'a'}
       end
-      
 
 
     end
