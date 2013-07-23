@@ -413,8 +413,18 @@ describe "http methods" do
         expect(response[0]).to be == 201
       end
 
+      it "matches paths that include ampersands" do
+        app = Sinatra.new do
+          get '/:foo' do
+            [201, {}, "#{params[:foo]}"]
+          end
+        end
+
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar&baz', 'rack.input' => ''
+        expect(response[2]).to be == ['bar&baz']
+      end
+
     end
 
   end
 end
-

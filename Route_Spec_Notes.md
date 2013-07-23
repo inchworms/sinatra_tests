@@ -67,6 +67,7 @@ CONTEXT: special characters
 #does not convert plus sign into space as the value of a named param
 #literally matches parens in paths
 #matches paths that include spaces encoded with %20
+#matches paths that include spaces encoded with +
 
 
 
@@ -77,7 +78,6 @@ TODO:
 #supports arrays within params
 #supports deeply nested params
 #preserves non-nested params
-#matches paths that include spaces encoded with +
 #matches paths that include ampersands
 #URL decodes named parameters and splats
 #supports regular expressions
