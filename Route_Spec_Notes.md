@@ -55,11 +55,14 @@ CONTEXT: pattern matching
 #does not concatinate params with the same name
 #supports single splat params like /*
 #supports mixing gstmultiple splat params like /*/foo/*/*
+#supports mixing named and splat params like /:foo/*
 ----------------------------------------
+
+CONTEXT: special characters 
+
 
 
 TODO:
-#supports mixing named and splat params like /:foo/*
 #matches a dot ('.') as part of a named param
 #matches a literal dot ('.') outside of named param
 ssu#bliterally matches dollar sign in paths

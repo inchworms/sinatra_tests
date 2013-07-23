@@ -267,6 +267,45 @@ describe "http methods" do
         expect(response[2]).to be == ["format="]
       end
 
+      it "supports single splat params like /*" do
+        app = Sinatra.new do
+          get '/*' do
+            [201, {}, "#{params["splat"].join}"]
+          end
+        end
+
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'rack.input' => ''
+        expect(response[2]).to be == ["foo"]
+
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo/bar/baz', 'rack.input' => ''
+        expect(response[2]).to be == ["foo/bar/baz"]
+      end
+
+      it "supports mixing multiple splat params like /*/foo/*/*" do
+        app = Sinatra.new do
+          get '/*/foo/*/*' do
+            [201, {}, "#{params["splat"].join(" ")}"]
+          end
+        end
+
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar/foo/bling/baz/boom', 'rack.input' => ''
+        expect(response[2]).to be == ["bar bling baz/boom"]
+
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar/foo/baz', 'rack.input' => ''
+        expect(response[0]).to be == 404
+      end
+
+      it "supports mixing named and splat params like /:foo/*" do
+        app = Sinatra.new do
+          get '/:foo/*' do
+            [201, {}, ""]
+          end
+        end
+        
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo/bar/baz', 'rack.input' => ''
+        expect(response[0]).to be == 201
+      end
+
       context 'does not concatinate params with the same name' do
         let(:app) do
           Sinatra.new do
@@ -276,37 +315,24 @@ describe "http methods" do
 
         let(:response){ get '/a?foo=b' }
         it("will take the first param only") { expect(response.body).to be == 'a'}
-
-        it "supports single splat params like /*" do
-          app = Sinatra.new do
-            get '/*' do
-              [201, {}, "#{params["splat"].join}"]
-            end
-          end
-
-          response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'rack.input' => ''
-          expect(response[2]).to be == ["foo"]
-
-          response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo/bar/baz', 'rack.input' => ''
-          expect(response[2]).to be == ["foo/bar/baz"]
-        end
-
-        it "supports mixing multiple splat params like /*/foo/*/*" do
-          app = Sinatra.new do
-            get '/*/foo/*/*' do
-              [201, {}, "#{params["splat"].join(" ")}"]
-            end
-          end
-
-          response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar/foo/bling/baz/boom', 'rack.input' => ''
-          expect(response[2]).to be == ["bar bling baz/boom"]
-
-          response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar/foo/baz', 'rack.input' => ''
-          expect(response[0]).to be == 404
-        end
       end
-
     end
+
+    context "special characters" do
+      it "matches a dot ('.') as part of a named param" do
+        app = Sinatra.new do
+          get '/:foo/:bar' do
+            [201, {}, "#{params[:foo]}"]
+          end
+        end
+
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/user@example.com/name', 'rack.input' => ''
+        expect(response[0]).to be == 201
+        expect(response[2]).to be == ['user@example.com']
+      end
+    end
+
+
+
   end
 end
-
