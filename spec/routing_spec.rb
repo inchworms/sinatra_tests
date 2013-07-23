@@ -229,7 +229,7 @@ describe "http methods" do
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'rack.input' => ''
         expect(response[2]).to be == ["foo=;bar="]
       end
-      #DOTO: Don't knwo if thats ok, because in the unit test, they set params(look at the routing_test.rb on github)
+      #TODO: Don't knwo if thats ok, because in the unit test, they set params(look at the routing_test.rb on github)
       context "params" do
         let(:app) do
           Sinatra.new do
@@ -248,7 +248,7 @@ describe "http methods" do
         it("supports arrays within params") { expect(response.body).to be == "{\"bar\"=>[\"A\", \"B\"]}" }
       end
 
-      #DOTO: Does it really mean its just sending nested params inside the body?
+      #TODO: Does it really mean its just sending nested params inside the body?
       it "supports deeply nested params" do
         expected_params = {
                         "emacs" => {
@@ -271,8 +271,22 @@ describe "http methods" do
         expect(response[2]).to be == expected_params
       end
 
+      #TODO: Doesn't work properly, I can change the params and its still working :(
+      context "non-nested params" do
+        let(:app) do
+          Sinatra.new do
+            get '/foo' do 
+              params['article_id'] = '2'
+              params['comment']['body'] = 'awesome'
+              [201, {}, 'works']
+            end
+          end
+        end
+        let(:response){ get '/foo?article_id=2&comment[body]=awesome' }
+        it("preserves non-nested params") { expect(response.status).to be == 201 }
+        it("preserves non-nested params") { expect(response.body).to be == 'works' }
+      end
     end
-
 
     context "pattern matching" do
       it "supports named captures like %r{/hello/(?<person>[^/?#]+)}" do
@@ -287,8 +301,8 @@ describe "http methods" do
 
       it "supports optional named captures like %r{/page(?<format>.[^/?#]+)?}" do
         app = Sinatra.new do
-         get Regexp.new('/page(?<format>.[^/?#]+)?') do
-          [201, {}, ["format=#{params[:format]}"]]
+          get Regexp.new('/page(?<format>.[^/?#]+)?') do
+            [ 201, {}, ["format=#{params[:format]}"]]
           end
         end
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/page.html', 'rack.input' => ''
@@ -355,6 +369,16 @@ describe "http methods" do
         end
         let(:response){ get '/hello?person[name]=John+Doe' }
         it("supports basic nested params") { expect(response.body).to be == "John Doe" }
+      end
+
+      it "URL decodes named parameters and splats" do
+        app = Sinatra.new do
+          get '/:foo/*' do
+            [201, {}, ""]
+          end
+        end
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/hello%20world/how%20are%20you', 'rack.input' => ''
+        expect(response[0]).to be == 201
       end
     end
 
