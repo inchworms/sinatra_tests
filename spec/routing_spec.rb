@@ -265,25 +265,17 @@ describe "http methods" do
         expect(response[2]).to be == ["format="]
       end
 
-      it 'does not concatinate params with the same name' do
-        app = Sinatra.new do
-          get '/:foo' do
-            [201, {}, ["#{params[:foo]}"]]
+      context 'does not concatinate params with the same name' do
+        let(:app) do
+          Sinatra.new do
+            get('/:foo') { [201, {}, [params[:foo]]] }
           end
         end
 
-        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/a?foo=b', 'rack.input' => ''
-        expect(response[2]).to be == ["a"]
+        let(:response){ get '/a?foo=b' }
+        it("will take the first param only") { expect(response.body).to be == 'a'}
       end
-
-
-      #   mock_app { get('/:foo') { params[:foo] } }
-      #   get '/a?foo=b'
-      #   assert_body 'a'
-      # end
-
-
-    
+      
 
 
     end
