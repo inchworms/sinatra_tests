@@ -56,6 +56,7 @@ CONTEXT: pattern matching
 #supports single splat params like /*
 #supports mixing gstmultiple splat params like /*/foo/*/*
 #supports mixing named and splat params like /:foo/*
+#supports basic nested params
 ----------------------------------------
 
 CONTEXT: special characters 
@@ -68,17 +69,16 @@ CONTEXT: special characters
 #literally matches parens in paths
 #matches paths that include spaces encoded with %20
 #matches paths that include spaces encoded with +
+#matches paths that include ampersands
 
 
 
 TODO:
-#supports basic nested params
 #exposes nested params with indifferent hash
 #exposes params nested within arrays with indifferent hash
 #supports arrays within params
 #supports deeply nested params
 #preserves non-nested params
-#matches paths that include ampersands
 #URL decodes named parameters and splats
 #supports regular expressions
 #makes regular expression captures available in params[:captures]

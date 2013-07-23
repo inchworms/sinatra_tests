@@ -83,7 +83,7 @@ describe "http methods" do
     end
 
     context "404" do
-      let(:app) {Sinatra.new}
+      let(:app) { Sinatra.new }
       let(:response) { get '/' }
 
       it "recalculates body length correctly for 404 response" do
@@ -302,6 +302,27 @@ describe "http methods" do
 
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo/bar/baz', 'rack.input' => ''
         expect(response[0]).to be == 201
+      end
+    
+      context "nested params" do
+        let(:app) do
+          Sinatra.new do
+            get ('/hello') { [201, {}, "#{params["person"]["name"]}"] }
+          end
+        end
+        let(:response){ get '/hello?person[name]=John+Doe' }
+        it("supports basic nested params") { expect(response.body).to be == "John Doe" }
+      end
+
+      context "nested params" do
+        let(:app) do
+          Sinatra.new do
+            get ('/testme') { [201, {}, ""] }
+          end
+        end
+
+        let(:response){ get '/testme?bar[foo]=baz' }
+        it("exposes nested params with indifferent hash") { expect(response.status).to be == 201 }
       end
 
       context 'does not concatinate params with the same name' do
