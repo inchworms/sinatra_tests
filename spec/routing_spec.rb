@@ -234,6 +234,58 @@ describe "http methods" do
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'rack.input' => ''
         expect(response[2]).to be == ["foo=;bar="]
       end
+
+      it "supports named captures like %r{/hello/(?<person>[^/?#]+)}" do
+        # next if RUBY_VERSION < '1.9'
+        app = Sinatra.new do
+          get Regexp.new('/hello/(?<person>[^/?#]+)') do
+            [201, {}, ["Hello #{params['person']}"]] 
+          end
+        end
+        
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/hello/Frank', 'rack.input' => ''
+        expect(response[2]).to be == ["Hello Frank"]
+      end
+
+      it "supports optional named captures like %r{/page(?<format>.[^/?#]+)?}" do
+      #     next if RUBY_VERSION < '1.9'
+        app = Sinatra.new do
+         get Regexp.new('/page(?<format>.[^/?#]+)?') do
+          [201, {}, ["format=#{params[:format]}"]]
+          end
+        end
+
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/page.html', 'rack.input' => ''
+        expect(response[2]).to be == ["format=.html"]
+
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/page.xml', 'rack.input' => ''
+        expect(response[2]).to be == ["format=.xml"]
+
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/page', 'rack.input' => ''
+        expect(response[2]).to be == ["format="]
+      end
+
+      it 'does not concatinate params with the same name' do
+        app = Sinatra.new do
+          get '/:foo' do
+            [201, {}, ["#{params[:foo]}"]]
+          end
+        end
+
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/a?foo=b', 'rack.input' => ''
+        expect(response[2]).to be == ["a"]
+      end
+
+
+      #   mock_app { get('/:foo') { params[:foo] } }
+      #   get '/a?foo=b'
+      #   assert_body 'a'
+      # end
+
+
+    
+
+
     end
   end
 end
