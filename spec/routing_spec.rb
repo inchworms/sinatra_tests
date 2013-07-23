@@ -244,9 +244,33 @@ describe "http methods" do
 
         let(:response){ get '/foo?bar[]=A&bar[]=B' }
         it("supports arrays within params") { expect(response.status).to be == 201 }
-        # DOTO: dont  know if that is necesary, but here I can see, that sinatra puts the params in params conrrectly
+        # DOTO: Dont know if that is necesary, but here I can see, that sinatra puts the params in params conrrectly
         it("supports arrays within params") { expect(response.body).to be == "{\"bar\"=>[\"A\", \"B\"]}" }
       end
+
+      #DOTO: Does it really mean its just sending nested params inside the body?
+      it "supports deeply nested params" do
+        expected_params = {
+                        "emacs" => {
+                                    "map"     => { "goto-line" => "M-g g" },
+                                    "version" => "22.3.1"
+                                    },
+                        "browser" => {
+                                    "firefox" => {"engine" => {"name"=>"spidermonkey", "version"=>"1.7.0"}},
+                                    "chrome"  => {"engine" => {"name"=>"V8", "version"=>"1.0"}}
+                                    },
+                        "paste" => {"name"=>"hello world", "syntax"=>"ruby"}
+        }
+        app = Sinatra.new do
+          get '/foo' do
+            [201, {}, params = expected_params]
+          end
+        end
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'rack.input' => ''
+        expect(response[0]).to be == 201
+        expect(response[2]).to be == expected_params
+      end
+
     end
 
 
