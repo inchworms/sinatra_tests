@@ -32,7 +32,7 @@ describe "http methods" do
       it "/hello routes gets hello route" do
         app = Sinatra.new do
           get '/hello' do
-            [201, {}, '']
+            [ 201, {}, '' ]
           end
         end
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/hello', 'rack.input' => ''
@@ -59,7 +59,7 @@ describe "http methods" do
       it "returns empty array when body is nil" do
         app = Sinatra.new do
           get '/' do
-            [201, {}, nil]
+            [ 201, {}, nil ]
           end
         end
         response = app.call 'REQUEST_METHOD' => 'GET', 'rack.input' => ''
@@ -98,7 +98,7 @@ describe "http methods" do
           let(:app) do
             Sinatra.new do
               get unicode_route do
-                [201, {}, ""]
+                [ 201, {}, "" ]
               end
             end
           end
@@ -113,7 +113,7 @@ describe "http methods" do
       it "handles encoded slashes correctly" do
         app = Sinatra.new do
           get '/:a' do
-            [201, {}, "#{params[:a]}"] 
+            [ 201, {}, "#{params[:a]}" ] 
           end
         end
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo%2Fbar', 'rack.input' => ''
@@ -137,7 +137,7 @@ describe "http methods" do
       it 'matches empty PATH_INFO to "/" if no route is defined for ""' do
         app = Sinatra.new do
           get '/' do
-            [201, {}, '']
+            [ 201, {}, '' ]
           end
         end
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '', 'rack.input' => ''
@@ -147,10 +147,10 @@ describe "http methods" do
       it 'matches empty PATH_INFO to "" if a route is defined for ""' do
         app = Sinatra.new do
           get '/' do
-            [201, {}, 'not working']
+            [ 201, {}, 'not working' ]
           end
           get '' do
-            [201, {}, 'working']
+            [ 201, {}, 'working' ]
           end
         end
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '', 'rack.input' => ''
@@ -164,10 +164,10 @@ describe "http methods" do
         app = Sinatra.new do
           user_agent(/Mozilla/)
           get '/' do
-            [201, {}, 'Mozilla']
+            [ 201, {}, 'Mozilla' ]
           end
           get '/' do
-            [201, {}, 'not Mozilla']
+            [ 201, {}, 'not Mozilla' ]
           end
         end
         response = app.call 'REQUEST_METHOD' => 'GET', 'HTTP_USER_AGENT' => 'Mozilla', 'rack.input' => ''
@@ -183,7 +183,7 @@ describe "http methods" do
       it "supports params like /hello/:name" do
         app = Sinatra.new do
           get '/Hello/:name' do
-            [201, {}, ["Hello #{params[:name]}!"]]
+            [ 201, {}, ["Hello #{params[:name]}!"] ]
           end
         end
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/Hello/Horst', 'rack.input' => ''
@@ -195,7 +195,7 @@ describe "http methods" do
           get '/:foo' do
             bar = params['foo']
             bar = params[:foo]
-            [201, {}, 'ok']
+            [ 201, {}, 'ok' ]
           end
         end
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar', 'rack.input' => ''
@@ -207,7 +207,7 @@ describe "http methods" do
           get '/:foo' do
             bar = params['foo']
             biz = params[:bar]
-            [201, {}, '']
+            [ 201, {}, '' ]
           end
         end
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/biz', 'rack.input' => ''
@@ -217,7 +217,7 @@ describe "http methods" do
       it "supports optional named params like /?:foo?/?:bar?" do
         app = Sinatra.new do
           get '/?:foo?/?:bar?' do
-            [201, {}, ["foo=#{params[:foo]};bar=#{params[:bar]}"]]
+            [ 201, {}, ["foo=#{params[:foo]};bar=#{params[:bar]}"] ]
           end
         end
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/hello/world', 'rack.input' => ''
@@ -271,20 +271,17 @@ describe "http methods" do
         expect(response[2]).to be == expected_params
       end
 
-      #TODO: Doesn't work properly, I can change the params and its still working :(
       context "non-nested params" do
         let(:app) do
           Sinatra.new do
             get '/foo' do 
-              params['article_id'] = '2'
-              params['comment']['body'] = 'awesome'
-              [201, {}, 'works']
+              [ 201, {}, "#{params['article_id']}; #{params['comment']['body']}" ]
             end
           end
         end
         let(:response){ get '/foo?article_id=2&comment[body]=awesome' }
         it("preserves non-nested params") { expect(response.status).to be == 201 }
-        it("preserves non-nested params") { expect(response.body).to be == 'works' }
+        it("preserves non-nested params") { expect(response.body).to be == "2; awesome" }
       end
     end
 
@@ -292,7 +289,7 @@ describe "http methods" do
       it "supports named captures like %r{/hello/(?<person>[^/?#]+)}" do
         app = Sinatra.new do
           get Regexp.new('/hello/(?<person>[^/?#]+)') do
-            [201, {}, ["Hello #{params['person']}"]]
+            [ 201, {}, ["Hello #{params['person']}"] ]
           end
         end
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/hello/Frank', 'rack.input' => ''
@@ -302,7 +299,7 @@ describe "http methods" do
       it "supports optional named captures like %r{/page(?<format>.[^/?#]+)?}" do
         app = Sinatra.new do
           get Regexp.new('/page(?<format>.[^/?#]+)?') do
-            [ 201, {}, ["format=#{params[:format]}"]]
+            [ 201, {}, ["format=#{params[:format]}"] ]
           end
         end
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/page.html', 'rack.input' => ''
@@ -318,7 +315,7 @@ describe "http methods" do
       context 'does not concatinate params with the same name' do
         let(:app) do
           Sinatra.new do
-            get('/:foo') { [201, {}, [params[:foo]]] }
+            get('/:foo') {[ 201, {}, [params[:foo]] ]}
           end
         end
         let(:response){ get '/a?foo=b' }
@@ -328,7 +325,7 @@ describe "http methods" do
       it "supports single splat params like /*" do
         app = Sinatra.new do
           get '/*' do
-            [201, {}, "#{params["splat"].join}"]
+            [ 201, {}, "#{params["splat"].join}" ]
           end
         end
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'rack.input' => ''
@@ -341,7 +338,7 @@ describe "http methods" do
       it "supports mixing multiple splat params like /*/foo/*/*" do
         app = Sinatra.new do
           get '/*/foo/*/*' do
-            [201, {}, "#{params["splat"].join(" ")}"]
+            [ 201, {}, "#{params["splat"].join(" ")}" ]
           end
         end
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar/foo/bling/baz/boom', 'rack.input' => ''
@@ -354,7 +351,7 @@ describe "http methods" do
       it "supports mixing named and splat params like /:foo/*" do
         app = Sinatra.new do
           get '/:foo/*' do
-            [201, {}, ""]
+            [ 201, {}, "" ]
           end
         end
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo/bar/baz', 'rack.input' => ''
@@ -374,10 +371,21 @@ describe "http methods" do
       it "URL decodes named parameters and splats" do
         app = Sinatra.new do
           get '/:foo/*' do
-            [201, {}, ""]
+            [ 201, {}, "#{params[:foo]};#{params[:splat]}" ]
           end
         end
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/hello%20world/how%20are%20you', 'rack.input' => ''
+        expect(response[0]).to be == 201
+        expect(response[2]).to be == ["hello world;[\"how are you\"]"]
+      end
+
+      it 'supports regular expressions' do
+        app = Sinatra.new do
+          get Regexp.new('^\/foo...\/bar$') do
+            [ 201, {}, "" ]
+          end
+        end
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foooom/bar', 'rack.input' => ''
         expect(response[0]).to be == 201
       end
     end
@@ -387,7 +395,7 @@ describe "http methods" do
       it "matches a dot ('.') as part of a named param" do
         app = Sinatra.new do
           get '/:foo/:bar' do
-            [201, {}, "#{params[:foo]}"]
+            [ 201, {}, "#{params[:foo]}" ]
           end
         end
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/user@example.com/name', 'rack.input' => ''
@@ -398,7 +406,7 @@ describe "http methods" do
       it "matches a literal dot ('.') outside of named params" do
         app = Sinatra.new do
           get '/:file.:ext' do
-            [201, {}, ""]
+            [ 201, {}, "" ]
           end
         end
 
@@ -409,7 +417,7 @@ describe "http methods" do
       it "literally matches dot in paths" do
         app = Sinatra.new do
           get '/test.bar' do
-            [201, {}, ""]
+            [ 201, {}, "" ]
           end
         end
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/test.bar', 'rack.input' => ''
@@ -422,7 +430,7 @@ describe "http methods" do
       it "literally matches dollar sign in paths" do
         app = Sinatra.new do
           get '/foo$' do
-            [201, {}, ""]
+            [ 201, {}, "" ]
           end
         end
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo$', 'rack.input' => ''
@@ -432,7 +440,7 @@ describe "http methods" do
       it "literally matches plus sign in paths" do
         app = Sinatra.new do
           get '/fo+o' do
-            [201, {}, ""]
+            [ 201, {}, "" ]
           end
         end
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/fo%2Bo', 'rack.input' => ''
@@ -445,7 +453,7 @@ describe "http methods" do
       it "does not convert plus sign into space as the value of a named param" do
         app = Sinatra.new do
           get '/:foo' do
-            [201, {}, "#{params[:foo]}"]
+            [ 201, {}, "#{params[:foo]}" ]
           end
         end
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/baz+bar', 'rack.input' => ''
@@ -455,7 +463,7 @@ describe "http methods" do
       it "literally matches parenthese in paths" do
         app = Sinatra.new do
           get '/foo(bar)' do
-            [201, {}, ""]
+            [ 201, {}, "" ]
           end
         end
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo(bar)', 'rack.input' => ''
@@ -465,7 +473,7 @@ describe "http methods" do
       it "matches paths that include spaces encoded with %20 or +" do
         app = Sinatra.new do
           get '/path with spaces' do
-            [201, {}, ""]
+            [ 201, {}, "" ]
           end
         end
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/path%20with%20spaces', 'rack.input' => ''
@@ -476,7 +484,7 @@ describe "http methods" do
       it "matches paths that include ampersands" do
         app = Sinatra.new do
           get '/:foo' do
-            [201, {}, "#{params[:foo]}"]
+            [ 201, {}, "#{params[:foo]}" ]
           end
         end
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar&baz', 'rack.input' => ''
