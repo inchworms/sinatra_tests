@@ -339,9 +339,32 @@ describe "http methods" do
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/pony.jpg', 'rack.input' => ''
         expect(response[0]).to be == 201
       end
+
+      it "literally matches dot in paths" do
+        app = Sinatra.new do
+          get '/test.bar' do
+            [201, {}, ""]
+          end
+        end
+
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/test.bar', 'rack.input' => ''
+        expect(response[0]).to be == 201
+
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/test0bar', 'rack.input' => ''
+        expect(response[0]).to be == 404
+      end
     end
 
 
 
   end
 end
+
+# it "literally matches dot in paths" do
+#   route_def '/test.bar'
+
+#   get '/test.bar'
+#   assert ok?
+#   get 'test0bar'
+#   assert not_found?
+# end
