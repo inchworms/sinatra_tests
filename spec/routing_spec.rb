@@ -234,7 +234,9 @@ describe "http methods" do
         response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'rack.input' => ''
         expect(response[2]).to be == ["foo=;bar="]
       end
+    end
 
+    context "pattern matching" do
       it "supports named captures like %r{/hello/(?<person>[^/?#]+)}" do
         # next if RUBY_VERSION < '1.9'
         app = Sinatra.new do
@@ -274,9 +276,36 @@ describe "http methods" do
 
         let(:response){ get '/a?foo=b' }
         it("will take the first param only") { expect(response.body).to be == 'a'}
-      end
 
+        it "supports single splat params like /*" do
+          app = Sinatra.new do
+            get '/*' do
+              [201, {}, "#{params["splat"].join}"]
+            end
+          end
+
+          response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'rack.input' => ''
+          expect(response[2]).to be == ["foo"]
+
+          response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo/bar/baz', 'rack.input' => ''
+          expect(response[2]).to be == ["foo/bar/baz"]
+        end
+      end
 
     end
   end
 end
+  # it "supports single splat params like /*" do
+  #   mock_app {
+  #     get '/*' do
+  #       assert params['splat'].kind_of?(Array)
+  #       params['splat'].join "\n"
+  #     end
+  #   }
+
+  #   get '/foo'
+  #   assert_equal "foo", body
+
+  #   get '/foo/bar/baz'
+  #   assert_equal "foo/bar/baz", body
+  # end
