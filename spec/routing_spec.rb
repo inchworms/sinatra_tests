@@ -365,7 +365,23 @@ describe "http methods" do
         expect(response[0]).to be == 201
       end
 
+      it "literally matches plus sign in paths" do
+        app = Sinatra.new do
+          get '/fo+o/' do
+            [201, {}, ""]
+          end
+        end
+
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/fo%2Bo/', 'rack.input' => ''
+        expect(response[0]).to be == 201
+
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foooooooo/', 'rack.input' => ''
+        expect(response[0]).to be == 404
+      end
+
     end
 
   end
 end
+
+
