@@ -290,22 +290,23 @@ describe "http methods" do
           response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo/bar/baz', 'rack.input' => ''
           expect(response[2]).to be == ["foo/bar/baz"]
         end
+
+        it "supports mixing multiple splat params like /*/foo/*/*" do
+          app = Sinatra.new do
+            get '/*/foo/*/*' do
+              [201, {}, "#{params["splat"].join(" ")}"]
+            end
+          end
+
+          response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar/foo/bling/baz/boom', 'rack.input' => ''
+          expect(response[2]).to be == ["bar bling baz/boom"]
+
+          response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar/foo/baz', 'rack.input' => ''
+          expect(response[0]).to be == 404
+        end
       end
 
     end
   end
 end
-  # it "supports single splat params like /*" do
-  #   mock_app {
-  #     get '/*' do
-  #       assert params['splat'].kind_of?(Array)
-  #       params['splat'].join "\n"
-  #     end
-  #   }
 
-  #   get '/foo'
-  #   assert_equal "foo", body
-
-  #   get '/foo/bar/baz'
-  #   assert_equal "foo/bar/baz", body
-  # end

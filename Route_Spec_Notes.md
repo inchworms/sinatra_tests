@@ -46,14 +46,19 @@ CONTEXT: params
 #exposes params with indifferent hash
 #merges named params and query string params in params
 #supports optional named params like /?:foo?/?:bar?
+---------------
+
+
+CONTEXT: pattern matching
 #supports named captures like %r{/hello/(?<person>[^/?#]+)} on Ruby >= 1.9
 #supports optional named captures like %r{/page(?<format>.[^/?#]+)?} on Ruby >= 1.9
 #does not concatinate params with the same name
----------------
+#supports single splat params like /*
+#supports mixing gstmultiple splat params like /*/foo/*/*
+----------------------------------------
+
 
 TODO:
-#supports single splat params like /*
-#supports mixing multiple splat params like /*/foo/*/*
 #supports mixing named and splat params like /:foo/*
 #matches a dot ('.') as part of a named param
 #matches a literal dot ('.') outside of named param
