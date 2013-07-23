@@ -401,7 +401,20 @@ describe "http methods" do
         expect(response[0]).to be == 201
       end
 
+      it "matches paths that include spaces encoded with %20 or +" do
+        app = Sinatra.new do
+          get '/path with spaces' do
+            [201, {}, ""]
+          end
+        end
+
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/path%20with%20spaces', 'rack.input' => ''
+        response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/path+with+spaces', 'rack.input' => ''
+        expect(response[0]).to be == 201
+      end
+
     end
 
   end
 end
+
