@@ -8,7 +8,7 @@ describe "get request" do
 
 	context "route internals" do
 
-		#it 'returns the route signature' 
+		#it 'returns the route signature' (this test no longer a requirement)
 
 	  it "sets env['sinatra.route'] to the matched route" do
 	  	app = Sinatra.new do 
