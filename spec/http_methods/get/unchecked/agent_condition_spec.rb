@@ -1,8 +1,6 @@
 # encoding: utf-8
 
-require 'sinatra'
-require 'stringio'
-require 'support/rack'
+require 'spec_helper'
 
 describe 'GET agent conditions' do
 	it 'passes to the next route when user_agent does not match'

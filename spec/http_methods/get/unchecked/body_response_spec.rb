@@ -1,8 +1,6 @@
 # encoding: utf-8
 
-require 'sinatra'
-require 'stringio'
-require 'support/rack'
+require 'spec_helper'
 
 describe " GET body responses" do
   it "returns empty array when body is nil" do

@@ -1,8 +1,6 @@
 # encoding: utf-8
 
-require 'sinatra'
-require 'stringio'
-require 'support/rack'
+require 'spec_helper'
 
 describe "GET pattern matching" do
   it 'makes regular expression captures available in params[:captures]'

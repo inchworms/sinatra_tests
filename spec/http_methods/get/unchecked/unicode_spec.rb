@@ -1,9 +1,6 @@
 # encoding: utf-8
 
-require 'sinatra'
-require 'stringio'
-require 'support/rack'
-
+require 'spec_helper'
 
 describe "GET unicode" do
   {'percent encoded' => '/f%C3%B6%C3%B6', 'utf-8 literal' => '/föö'}.each do |kind, unicode_route|

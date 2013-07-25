@@ -1,8 +1,6 @@
 # encoding: utf-8
 
-require 'sinatra'
-require 'stringio'
-require 'support/rack'
+require 'spec_helper'
 
 describe 'GET multiple definitions of a route' do
   it 'works with HTTP_USER_AGENT' do

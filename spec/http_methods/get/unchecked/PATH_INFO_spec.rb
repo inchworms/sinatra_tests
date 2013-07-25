@@ -1,8 +1,6 @@
 # encoding: utf-8
 
-require 'sinatra'
-require 'stringio'
-require 'support/rack'
+require 'spec_helper'
 
 describe "GET PATH_INFO" do
 	it 'matches empty PATH_INFO to "/" if no route is defined for ""' do

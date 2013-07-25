@@ -1,3 +1,6 @@
+ENV['RACK_ENV'] = 'test'
+
+require 'sinatra'
 require 'rspec'
 require 'rack/test'
 

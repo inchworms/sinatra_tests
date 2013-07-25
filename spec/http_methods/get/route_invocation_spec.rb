@@ -1,8 +1,5 @@
-# 'encoding: utf-8
-
-require 'sinatra'
-require 'stringio'
-require 'support/rack'
+# encoding: utf-8
+require 'spec_helper'
 
 describe 'GET route invocations'do 
 
@@ -11,10 +8,22 @@ describe 'GET route invocations'do
 	it 'passes regular expression captures as block parameters'
 	it 'supports mixing multiple splat params like /*/foo/*/* as block parameters'
 	it 'raises an ArgumentError with block arity > 1 and too many values'
-	it 'raises an ArgumentError with block param arity > 1 and too few values'
+	it 'raises an ArgumentError with block param arity 1 and too few values'
 	it 'succeeds if no block parameters are specified'
 	it 'passes all params with block param arity -1 (splat args)'
 	it 'raises an ArgumentError with block param arity 1 and no values'
-	it 'raises an ArgumentError with block param arity 1 and too many values'
+
+  
+  let(:app) do
+    Sinatra.new do
+      get('/:foo/:bar') do |foo, bar, baz|
+  			[201, {}, ["quux"]] 
+  		end
+    end
+  end
+
+  it("raises an ArgumentError with block param arity >1 and too few values") do 
+  	expect { get '/a/b' }.to raise_error(ArgumentError)
+  end
 
 end

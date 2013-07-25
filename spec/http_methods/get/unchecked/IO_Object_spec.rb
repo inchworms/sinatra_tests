@@ -1,8 +1,7 @@
 # encoding: utf-8
 
-require 'sinatra'
+require 'spec_helper'
 require 'stringio'
-require 'support/rack'
 
 describe " GET returning an IO-like object" do
   let(:app) do
