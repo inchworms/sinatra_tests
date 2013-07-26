@@ -1,27 +1,54 @@
 # encoding: utf-8
+
 require 'spec_helper'
 
 describe 'GET route invocations'do 
 
-	it 'passes a single url param as block parameters when one param is specified'
-	it 'passes multiple params as block parameters when many are specified'
-
-
-context 'passes regular expression' do
-  let(:app) do
-    Sinatra.new do 
-      get (/^\/fo(.*)\/ba(.*)/) do |foo, bar|
-        [201, {}, [foo, bar]]      
+	context 'single url param' do
+    let(:app) do
+      Sinatra.new do
+        get ('/:foo') do |foo|
+          [201, {}, foo]
+        end
       end
+    end
+
+   it 'passes as block parameters when one param is specified' do
+    expect(get('/bar').body).to be == 'bar'
+    expect(get('/bar').status).to be == 201
+   end
+  end  
+
+  context 'multiple params' do
+    let(:app) do
+      Sinatra.new do 
+        get ('/:foo/:bar/:baz') do |foo, bar, baz|
+          [201, {}, [params[:foo], params[:bar], params[:baz]]]  
+        end
+      end
+    end
+
+    it 'correctly passes block parameters when many are specified' do  
+      expect(get('/abc/def/ghi').body).to be == "abcdefghi"
+      expect(get('/abc/def/ghi').status).to be == 201
     end
   end
 
-  it 'correctly captures as block parameters' do  
-    expect(get('/foorooomma/baf').body).to be == "orooommaf"
-    expect(get('/foorooomma/baf').status).to be == 201
-  end
+  context 'passes regular expression' do
+    let(:app) do
+      Sinatra.new do 
+        get (/^\/fo(.*)\/ba(.*)/) do |foo, bar|
+          [201, {}, [foo, bar]]      
+        end
+      end
+    end
 
-end
+    it 'correctly captures as block parameters' do  
+      expect(get('/foorooomma/baf').body).to be == "orooommaf"
+      expect(get('/foorooomma/baf').status).to be == 201
+    end
+
+  end
 
 	
   context "mixing multiple splat params like /*/foo/*/*" do
