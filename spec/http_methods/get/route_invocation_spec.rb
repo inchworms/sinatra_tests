@@ -7,9 +7,23 @@ describe 'GET route invocations'do
 	it 'passes multiple params as block parameters when many are specified'
 
 
-it 'passes regular expression captures as block parameters' do
-  app = Sinatra.new do
-    get(/^\/fo(.*)\/ba(.*)/) do |foo, bar|
+context 'passes regular expression' do
+  let(:app) do
+    Sinatra.new do 
+      get (/^\/fo(.*)\/ba(.*)/) do |foo, bar|
+        [201, {}, params[:captures]]       
+      end
+    end
+  end
+
+  it 'correctly captures as block parameters' do  
+    expect(get('/foorooomma/baf').body).to be == ["foorooomma/baf"]
+    expect(get('/foorooomma/baf').status).to be == 201
+  end
+
+end
+
+
 
 #     mock_app {
 #       get(/^\/fo(.*)\/ba(.*)/) do |foo, bar|
@@ -23,22 +37,25 @@ it 'passes regular expression captures as block parameters' do
 #     assert ok?
 #     assert_equal 'looks good', body
 
-  end
+
 	
-  it "supports mixing multiple splat params like /*/foo/*/*" do
-    app = Sinatra.new do
-      get '/*/foo/*/*' do
-        if params['splat'].kind_of?(Array)
+  context "mixing multiple splat params like /*/foo/*/*" do
+
+    let(:app) do
+      Sinatra.new do
+        get '/*/foo/*/*' do
           params['splat'].join "\n"
         end
       end
     end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar/foo/bling/baz/boom', 'rack.input' => ''
-    expect(response[2]).to be == ["bar\nbling\nbaz/boom"]  
-
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar/foo/baz', 'rack.input' => ''
-    expect(response[0]).to be == 404 
+    it 'correctly extracts the parameters' do  
+      expect(get('/bar/foo/bling/baz/boom').body).to be == "bar\nbling\nbaz/boom"
+    end
+       
+    it 'returns a 404 if not enough splats are provided' do 
+      expect(get('/bar/foo/baz').status).to be == 404
+    end
   end
 	
 
