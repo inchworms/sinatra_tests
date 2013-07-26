@@ -11,8 +11,28 @@ describe 'GET route flow' do
 	it 'transitions to the next matching route on pass'
 	it 'transitions to 404 when passed and no subsequent route matches'
 	it 'transitions to 404 and sets X-Cascade header when passed and no subsequent route matches'
-	it 'uses optional block passed to pass as route block if no other route is found'
 	
+
+	
+	context 'optional blocks' do
+    let(:app) do
+    	Sinatra.new do
+	      get('/') do
+        	pass do
+          	'this'
+        	end
+        	'not this'
+      	end
+      end
+    end
+    
+
+    it 'uses optional block passed to pass as route block if no other route is found' do 
+    	expect(get('/').body).to be == "this"
+    end
+  end
+
+
 	it "matches routes defined in superclasses" do
     base = Class.new(Sinatra::Base)
     base.get('/foo') { 'foo in baseclass' }
