@@ -11,32 +11,17 @@ context 'passes regular expression' do
   let(:app) do
     Sinatra.new do 
       get (/^\/fo(.*)\/ba(.*)/) do |foo, bar|
-        [201, {}, params[:captures]]       
+        [201, {}, [foo, bar]]      
       end
     end
   end
 
   it 'correctly captures as block parameters' do  
-    expect(get('/foorooomma/baf').body).to be == ["foorooomma/baf"]
+    expect(get('/foorooomma/baf').body).to be == "orooommaf"
     expect(get('/foorooomma/baf').status).to be == 201
   end
 
 end
-
-
-
-#     mock_app {
-#       get(/^\/fo(.*)\/ba(.*)/) do |foo, bar|
-#         assert_equal 'orooomma', foo
-#         assert_equal 'f', bar
-#         'looks good'
-#       end
-#     }
-
-#     get '/foorooomma/baf'
-#     assert ok?
-#     assert_equal 'looks good', body
-
 
 	
   context "mixing multiple splat params like /*/foo/*/*" do
