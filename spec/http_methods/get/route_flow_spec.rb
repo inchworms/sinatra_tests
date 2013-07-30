@@ -12,21 +12,26 @@ describe 'GET route flow' do
   #it 'transitions to the next matching route on pass'
 
   it "transitions to the next matching route on pass" do
-    mock_app {
+
+    verifier = Proc.new { |request|
+        expect(request.params).not_to include('foo') 
+      }
+
+    app = Sinatra.new do 
       get '/:foo' do
         pass
-        'Hello Foo'
+          'Hello Foo'
       end
 
       get '/*' do
-        assert !params.include?('foo')
+         verifier.call(request)
         'Hello World'
       end
-    }
+    end
+  
+  response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar', 'rack.input' => ''
+  expect(response[2]).to be == ['Hello World']
 
-    get '/bar'
-    assert ok?
-    assert_equal 'Hello World', body
   end
   
 
