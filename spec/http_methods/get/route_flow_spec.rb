@@ -7,11 +7,22 @@ describe 'GET route flow' do
   it 'returns response immediately on halt'
   it 'halts with a response tuple'
   it 'halts with an array of strings'
-  it 'sets response.status with halt'
-  
-  #it 'transitions to the next matching route on pass'
 
-  it "transitions to the next matching route on pass" do
+  it 'sets response.status with halt' do
+    status_was = nil
+    app = Sinatra.new do
+      after { status_was = status }
+      get('/') { halt 500, 'error' }
+    end
+    
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'rack.input' => ''
+    expect(response[0]).to be == 500
+    expect(status_was).to be == 500
+       
+  end
+  
+
+  it 'transitions to the next matching route on pass' do
 
     verifier = Proc.new { |request|
         expect(request.params).not_to include('foo') 
@@ -34,7 +45,6 @@ describe 'GET route flow' do
 
   end
   
-
 
   context 'no subsequent route matches' do
     let(:app) do
