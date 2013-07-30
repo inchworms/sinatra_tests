@@ -11,29 +11,60 @@ describe 'GET route flow' do
   it 'transitions to the next matching route on pass'
   
   #it 'transitions to 404 when passed and no subsequent route matches' 
-  #this has been subsumed into test below...
+
+  context 'no subsequent route matches' do
+  let(:app) do
+    Sinatra.new do 
+      get ('/:foo') do
+        pass
+      end
+    end
+  end
+ 
+  let(:response) { get '/bar' }
+ 
+  it('transitions to 404 when passed') do
+    expect(response.status).to be(404)
+  end
+  
+  it('sets X-Cascade header when passed') do
+    expect(response.headers['X-Cascade']).to eq('pass')
+  end
+end
 
  
   
-  context 'no subsequent route matches' do
-   
-  	let(:app) do
-      Sinatra.new do
-        get('/:foo') do
-          pass
-            'Hello Foo'
-        end
+  # context 'no subsequent route matches' do
 
-        get('/bar') do
-          'Hello Bar'
-        end
-      end
-    end
+  #   let(:app) do
+  #     Sinatra.new do 
+  #       get ('/:foo') do
+  #         pass
+  #           'Hello Foo'
+  #       end
+  #     end
+  #   end
 
-    let(:response) { get '/foo' }
-    it('transitions to 404 when passed') { expect(response.status).to be == 404 }
-    it('sets X-Cascade header when passed') { expect(response.headers['X-Cascade']).to be == 'pass' }
-  end
+  #   let(:response) { get '/bar' }
+  #   it('transitions to 404 when passed') { expect(response.status).to be == 404 }
+  
+
+  # 	let(:app) do
+  #     Sinatra.new do
+  #       get('/:foo') do
+  #         pass
+  #           'Hello Foo'
+  #       end
+
+  #       get('/bar') do
+  #         'Hello Bar'
+  #       end
+  #     end
+  #   end
+
+  #   let(:response) { get '/foo' }
+  #   it('sets X-Cascade header when passed') { expect(response.headers['X-Cascade']).to be == 'pass' }
+  # end
 
   
   context 'optional blocks' do
@@ -72,7 +103,7 @@ describe 'GET route flow' do
   end
   
 
-  it 'matches routes in subclasses before superclasses' do
+  it 'matches routes in subclasses instead of superclasses' do
     base = Class.new(Sinatra::Base)
     base.get('/foo') { 'foo in baseclass' }
     base.get('/bar') { 'bar in baseclass' }
