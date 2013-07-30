@@ -6,7 +6,18 @@ describe 'GET route flow' do
 
   it 'returns response immediately on halt'
   it 'halts with a response tuple'
-  it 'halts with an array of strings'
+
+
+  it 'halts with an array of strings' do
+    app = Sinatra.new do
+      get '/' do
+        halt %w[Hello World How Are You]
+      end
+    end
+
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'rack.input' => ''
+    expect(response[2]).to be == (%w[Hello World How Are You])
+  end
 
   it 'sets response.status with halt' do
     status_was = nil
@@ -45,6 +56,13 @@ describe 'GET route flow' do
 
   end
   
+# for the context below, in the original unit tests there were two seperate tests:
+# one that expected a 404 when no subsequent route match and no other routes were defined
+# one that expected a 404 and set the X-Cascade header when no subsequent route matched
+# and there were other routes defined
+# we are not sure why(or if) we need to test for these seperate cases
+# please advise
+# https://github.com/inchworms/sinatra/blob/master/test/routing_test.rb#L628-L655
 
   context 'no subsequent route matches' do
     let(:app) do
