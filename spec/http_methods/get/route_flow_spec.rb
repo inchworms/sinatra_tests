@@ -4,8 +4,36 @@ require 'spec_helper'
 
 describe 'GET route flow' do
 
-  it 'returns response immediately on halt'
-  it 'halts with a response tuple'
+  context "returns response immediately on halt" do
+    let(:app) do 
+      Sinatra.new do 
+        get '/' do
+          halt 201, {}, 'Hello World'
+          'Boo-hoo World'
+        end
+      end
+    end
+
+    let(:response) { get '/' }
+    it('returns 201 as status') { expect(response.status).to be == 201}
+    it('returns correct body') { expect(response.body).to be == 'Hello World' }
+  end
+
+  context "halting with a response tuple" do
+    let(:app) do
+      Sinatra.new do
+        get '/' do
+          halt 295, {'Content-Type' => 'text/plain'}, 'Hello World'
+        end
+      end
+    end
+
+    let(:response) { get '/' }
+    it('returns 295 as status') { expect(response.status).to be == 295 }
+    it('returns headers') { expect(response['Content-Type']).to be == 'text/plain' }
+    it('returns correct body') { expect(response.body).to be == 'Hello World' }
+
+  end
 
 
   it 'halts with an array of strings' do
