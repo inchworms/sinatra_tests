@@ -312,7 +312,37 @@ describe 'GET provide conditions' do
     # assert_body 'image/png'
   end
 
-  it 'accepts generic types'
+  it 'accepts generic types' do
+    app = Sinatra.new do
+      get '/', :provides => :xml do
+        content_type
+      end
+      get '/' do
+        'no match'
+      end
+    end
+
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'foo/*', 'rack.input' => ''
+    expect(response[2]).to be == ['no match']
+
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'application/*', 'rack.input' => ''
+    expect(response[2]).to be == ['application/xml;charset=utf-8']
+
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => '*/*', 'rack.input' => ''
+    expect(response[2]).to be == ['application/xml;charset=utf-8']
+    # mock_app do
+    #   get('/', :provides => :xml) { content_type }
+    #   get('/') { 'no match' }
+    # end
+    # get '/', {}, { 'HTTP_ACCEPT' => 'foo/*' }
+    # assert_body 'no match'
+    # get '/', {}, { 'HTTP_ACCEPT' => 'application/*' }
+    # assert_body 'application/xml;charset=utf-8'
+    # get '/', {}, { 'HTTP_ACCEPT' => '*/*' }
+    # assert_body 'application/xml;charset=utf-8'
+  end
+
+
   it 'prefers concrete over partly generic types'
   it 'prefers concrete over fully generic types'
   it 'prefers partly generic over fully generic types'
