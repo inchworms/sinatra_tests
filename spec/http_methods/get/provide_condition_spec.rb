@@ -117,7 +117,105 @@ describe 'GET provide conditions' do
     mime_types.each { |mime_type| expect(mime_type).to match(Sinatra::Request::HEADER_VALUE_WITH_PARAMS) }
   end
 
-	it 'filters by accept header'
+  it 'filters by accept header' do
+    app = Sinatra.new do
+      get '/', :provides => :xml do
+        env['HTTP_ACCEPT']
+      end
+      get '/foo', :provides => :html do
+        env['HTTP_ACCEPT']
+      end
+      get '/stream', :provides => 'text/event-stream' do
+        env['HTTP_ACCEPT']
+      end
+    end
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'application/xml', 'rack.input' => ''
+    expect(response[0]).to be == 200
+    expect(response[1]['Content-Type']).to be == 'application/xml;charset=utf-8'
+    expect(response[2]).to be == ['application/xml']
+    # get '/', {}, { 'HTTP_ACCEPT' => 'application/xml' }
+    # assert ok?
+    # assert_equal 'application/xml', body
+    # assert_equal 'application/xml;charset=utf-8', response.headers['Content-Type']
+
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => '','rack.input' => ''
+    expect(response[0]).to be == 200
+    expect(response[1]['Content-Type']).to be == 'application/xml;charset=utf-8'
+    expect(response[2]).to be == ['']
+    # get '/', {}, {}
+    # assert ok?
+    # assert_equal '', body
+    # assert_equal 'application/xml;charset=utf-8', response.headers['Content-Type']
+
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => '*/*', 'rack.input' => ''
+    expect(response[0]).to be == 200
+    expect(response[1]['Content-Type']).to be == 'application/xml;charset=utf-8'
+    expect(response[2]).to be == ['*/*']
+    # get '/', {}, { 'HTTP_ACCEPT' => '*/*' }
+    # assert ok?
+    # assert_equal '*/*', body
+    # assert_equal 'application/xml;charset=utf-8', response.headers['Content-Type']
+
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'text/html;q=0.9', 'rack.input' => ''
+    expect(response[0]).to be == 404
+    # get '/', {}, { 'HTTP_ACCEPT' => 'text/html;q=0.9' }
+    # assert !ok?
+
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'HTTP_ACCEPT' => 'text/html;q=0.9', 'rack.input' => ''
+    expect(response[0]).to be == 200
+    expect(response[2]).to be == ['text/html;q=0.9']
+    # get '/foo', {}, { 'HTTP_ACCEPT' => 'text/html;q=0.9' }
+    # assert ok?
+    # assert_equal 'text/html;q=0.9', body
+
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'HTTP_ACCEPT' => '','rack.input' => ''
+    expect(response[0]).to be == 200
+    expect(response[2]).to be == ['']
+    # get '/foo', {}, { 'HTTP_ACCEPT' => '' }
+    # assert ok?
+    # assert_equal '', body
+
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'HTTP_ACCEPT' => '*/*', 'rack.input' => ''
+    expect(response[0]).to be == 200
+    expect(response[2]).to be == ['*/*']
+    # get '/foo', {}, { 'HTTP_ACCEPT' => '*/*' }
+    # assert ok?
+    # assert_equal '*/*', body
+
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'HTTP_ACCEPT' => 'application/xml', 'rack.input' => ''
+    expect(response[0]).to be == 404
+    # get '/foo', {}, { 'HTTP_ACCEPT' => 'application/xml' }
+    # assert !ok?
+
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/stream', 'HTTP_ACCEPT' => 'text/event-stream', 'rack.input' => ''
+    expect(response[0]).to be == 200
+    expect(response[2]).to be == ['text/event-stream']
+    # get '/stream', {}, { 'HTTP_ACCEPT' => 'text/event-stream' }
+    # assert ok?
+    # assert_equal 'text/event-stream', body
+
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/stream', 'HTTP_ACCEPT' => '', 'rack.input' => ''
+    expect(response[0]).to be == 200
+    expect(response[2]).to be == ['']
+    # get '/stream', {}, { 'HTTP_ACCEPT' => '' }
+    # assert ok?
+    # assert_equal '', body
+
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/stream', 'HTTP_ACCEPT' => '*/*', 'rack.input' => ''
+    expect(response[0]).to be == 200
+    expect(response[2]).to be == ['*/*']
+    # get '/stream', {}, { 'HTTP_ACCEPT' => '*/*' }
+    # assert ok?
+    # assert_equal '*/*', body
+
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/stream', 'HTTP_ACCEPT' => 'application/xml', 'rack.input' => ''
+    expect(response[0]).to be == 404
+    # get '/stream', {}, { 'HTTP_ACCEPT' => 'application/xml' }
+    # assert !ok?
+  end
+
+
+
 	it 'filters by current Content-Type'
 	it 'allows multiple mime types for accept header'
 	it 'respects user agent preferences for the content type'
