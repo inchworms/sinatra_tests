@@ -278,10 +278,7 @@ describe 'GET provide conditions' do
       expect(response[1]['Content-Type']).to be == type
       expect(response[2]).to be == [type]
     end
-
-    # it "allows multiple mime types for accept header" do
     # types = ['image/jpeg', 'image/pjpeg']
-
     # mock_app {
     #   get '/', :provides => types do
     #     env['HTTP_ACCEPT']
@@ -297,9 +294,17 @@ describe 'GET provide conditions' do
   end
 
   it 'respects user agent preferences for the content type' do
+    app = Sinatra.new do
+      get '/', :provides => [:png, :html] do
+        content_type
+      end
+    end
 
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/png;q=0.5,text/html;q=0.8', 'rack.input' => ''
+    expect(response[2]).to be == ['text/html;charset=utf-8']
 
-
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/png;q=0.8,text/html;q=0.5', 'rack.input' => ''
+    expect(response[2]).to be == ['image/png']
     # mock_app { get('/', :provides => [:png, :html]) { content_type }}
     # get '/', {}, { 'HTTP_ACCEPT' => 'image/png;q=0.5,text/html;q=0.8' }
     # assert_body 'text/html;charset=utf-8'
