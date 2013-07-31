@@ -23,6 +23,23 @@ describe "GET pattern matching" do
   end
 
   it 'supports regular expression look-alike routes' do
+
+    class RegexpLookAlike
+      class MatchData
+        def captures
+          ["this", "is", "a", "test"]
+        end
+      end
+
+      def match(string)
+        ::RegexpLookAlike::MatchData.new if string == "/this/is/a/test/"
+      end
+
+      def keys
+        ["one", "two", "three", "four"]
+      end
+    end
+
     verifier = Proc.new { |params|
         expect(params[:one]).to be == 'this'
         expect(params[:two]).to be == 'is'
