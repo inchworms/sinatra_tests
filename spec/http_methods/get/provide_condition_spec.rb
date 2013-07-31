@@ -326,7 +326,24 @@ describe 'GET provide conditions' do
     expect(response[2]).to be == ['text/html;charset=utf-8']
   end
 
-  it 'orders types with equal quality by parameter count'
+  it 'orders types with equal quality by parameter count' do
+    app = Sinatra.new do
+      get '/', :provides => [:png, :jpg] do
+        content_type
+      end
+    end
+
+    lo_png = 'image/png;q=0.5'
+    hi_png = 'image/png;q=0.5;profile=FOGRA40;gamma=0.8'
+    jpeg = 'image/jpeg;q=0.5;compress=0.25'
+
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => "#{lo_png}, #{jpeg}", 'rack.input' => ''
+    expect(response[2]).to be == ['image/jpeg']
+
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => "#{hi_png}, #{jpeg}", 'rack.input' => ''
+    expect(response[2]).to be == ['image/png']
+  end
+
   it 'ignores the quality parameter when ordering by parameter count'
   it 'poperly handles quoted strings in parameters'
   it 'accepts both text/javascript and application/javascript for js'
