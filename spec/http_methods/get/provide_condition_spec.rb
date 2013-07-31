@@ -316,7 +316,16 @@ describe 'GET provide conditions' do
     expect(response[2]).to be == ['text/html;charset=utf-8']
   end
 
-  it 'supplies a default quality of 1.0'
+  it 'supplies a default quality of 1.0' do
+    app = Sinatra.new do
+      get '/', :provides => [:png, :html] do
+        content_type
+      end
+    end
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/png;q=0.5, text/*', 'rack.input' => ''
+    expect(response[2]).to be == ['text/html;charset=utf-8']
+  end
+
   it 'orders types with equal quality by parameter count'
   it 'ignores the quality parameter when ordering by parameter count'
   it 'poperly handles quoted strings in parameters'
