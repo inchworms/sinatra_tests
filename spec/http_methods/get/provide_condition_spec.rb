@@ -362,7 +362,24 @@ describe 'GET provide conditions' do
     # assert_body 'image/png'
   end
 
-  it 'prefers concrete over fully generic types'
+  it 'prefers concrete over fully generic types' do
+    app = Sinatra.new do
+      get '/', :provides => [:png, :html] do
+       content_type
+     end
+    end
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => '*/*, text/html', 'rack.input' => ''
+    expect(response[2]).to be == ['text/html;charset=utf-8']
+    
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/png, */*', 'rack.input' => ''
+    expect(response[2]).to be == ['image/png']
+    # mock_app { get('/', :provides => [:png, :html]) { content_type }}
+    # get '/', {}, { 'HTTP_ACCEPT' => '*/*, text/html' }
+    # assert_body 'text/html;charset=utf-8'
+    # get '/', {}, { 'HTTP_ACCEPT' => 'image/png, */*' }
+    # assert_body 'image/png'
+
+end
   it 'prefers partly generic over fully generic types'
   it 'respects quality with generic types'
   it 'supplies a default quality of 1.0'
