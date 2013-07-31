@@ -386,14 +386,19 @@ describe 'GET provide conditions' do
     end
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'application/javascript', 'rack.input' => ''
     expect(response[2]).to be == ['application/javascript;charset=utf-8']
-
-    #     mock_app { get('/', :provides => :js) { content_type }}
-    # get '/', {}, { 'HTTP_ACCEPT' => 'application/javascript' }
-    # assert_body 'application/javascript;charset=utf-8'
-    # get '/', {}, { 'HTTP_ACCEPT' => 'text/javascript' }
-    # assert_body 'text/javascript;charset=utf-8'
   end
 
-  it 'accepts both text/xml and application/xml for xml'
+  it 'accepts both text/xml and application/xml for xml' do
+    app = Sinatra.new do
+      get '/', :provides => :xml do
+        content_type
+      end
+    end
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'application/xml', 'rack.input' => ''
+    expect(response[2]).to be == ['application/xml;charset=utf-8']
+
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'text/xml', 'rack.input' => ''
+    expect(response[2]).to be == ['text/xml;charset=utf-8']
+  end
 
 end
