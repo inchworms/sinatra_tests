@@ -133,85 +133,50 @@ describe 'GET provide conditions' do
     expect(response[0]).to be == 200
     expect(response[1]['Content-Type']).to be == 'application/xml;charset=utf-8'
     expect(response[2]).to be == ['application/xml']
-    # get '/', {}, { 'HTTP_ACCEPT' => 'application/xml' }
-    # assert ok?
-    # assert_equal 'application/xml', body
-    # assert_equal 'application/xml;charset=utf-8', response.headers['Content-Type']
 
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => '','rack.input' => ''
     expect(response[0]).to be == 200
     expect(response[1]['Content-Type']).to be == 'application/xml;charset=utf-8'
     expect(response[2]).to be == ['']
-    # get '/', {}, {}
-    # assert ok?
-    # assert_equal '', body
-    # assert_equal 'application/xml;charset=utf-8', response.headers['Content-Type']
 
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => '*/*', 'rack.input' => ''
     expect(response[0]).to be == 200
     expect(response[1]['Content-Type']).to be == 'application/xml;charset=utf-8'
     expect(response[2]).to be == ['*/*']
-    # get '/', {}, { 'HTTP_ACCEPT' => '*/*' }
-    # assert ok?
-    # assert_equal '*/*', body
-    # assert_equal 'application/xml;charset=utf-8', response.headers['Content-Type']
 
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'text/html;q=0.9', 'rack.input' => ''
     expect(response[0]).to be == 404
-    # get '/', {}, { 'HTTP_ACCEPT' => 'text/html;q=0.9' }
-    # assert !ok?
 
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'HTTP_ACCEPT' => 'text/html;q=0.9', 'rack.input' => ''
     expect(response[0]).to be == 200
     expect(response[2]).to be == ['text/html;q=0.9']
-    # get '/foo', {}, { 'HTTP_ACCEPT' => 'text/html;q=0.9' }
-    # assert ok?
-    # assert_equal 'text/html;q=0.9', body
 
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'HTTP_ACCEPT' => '','rack.input' => ''
     expect(response[0]).to be == 200
     expect(response[2]).to be == ['']
-    # get '/foo', {}, { 'HTTP_ACCEPT' => '' }
-    # assert ok?
-    # assert_equal '', body
 
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'HTTP_ACCEPT' => '*/*', 'rack.input' => ''
     expect(response[0]).to be == 200
     expect(response[2]).to be == ['*/*']
-    # get '/foo', {}, { 'HTTP_ACCEPT' => '*/*' }
-    # assert ok?
-    # assert_equal '*/*', body
 
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'HTTP_ACCEPT' => 'application/xml', 'rack.input' => ''
     expect(response[0]).to be == 404
-    # get '/foo', {}, { 'HTTP_ACCEPT' => 'application/xml' }
-    # assert !ok?
 
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/stream', 'HTTP_ACCEPT' => 'text/event-stream', 'rack.input' => ''
     expect(response[0]).to be == 200
     expect(response[2]).to be == ['text/event-stream']
-    # get '/stream', {}, { 'HTTP_ACCEPT' => 'text/event-stream' }
-    # assert ok?
-    # assert_equal 'text/event-stream', body
 
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/stream', 'HTTP_ACCEPT' => '', 'rack.input' => ''
     expect(response[0]).to be == 200
     expect(response[2]).to be == ['']
-    # get '/stream', {}, { 'HTTP_ACCEPT' => '' }
-    # assert ok?
-    # assert_equal '', body
-
+ 
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/stream', 'HTTP_ACCEPT' => '*/*', 'rack.input' => ''
     expect(response[0]).to be == 200
     expect(response[2]).to be == ['*/*']
-    # get '/stream', {}, { 'HTTP_ACCEPT' => '*/*' }
-    # assert ok?
-    # assert_equal '*/*', body
 
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/stream', 'HTTP_ACCEPT' => 'application/xml', 'rack.input' => ''
     expect(response[0]).to be == 404
-    # get '/stream', {}, { 'HTTP_ACCEPT' => 'application/xml' }
-    # assert !ok?
+
   end
 
 
@@ -231,36 +196,17 @@ describe 'GET provide conditions' do
     expect(response[0]).to be == 200
     expect(response[1]['Content-Type']).to be == 'text/plain;charset=utf-8'
     expect(response[2]).to be == ['txt']
-    # mock_app do
-    #   before('/txt') { content_type :txt }
-    #   get('*', :provides => :txt) { 'txt' }
-
-    #   before('/html') { content_type :html }
-    #   get('*', :provides => :html) { 'html' }
-    # end
-
-    # get '/', {}, { 'HTTP_ACCEPT' => '*/*' }
-    # assert ok?
-    # assert_equal 'text/plain;charset=utf-8', response.headers['Content-Type']
-    # assert_body 'txt'
 
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/txt', 'HTTP_ACCEPT' => 'text/plain', 'rack.input' => ''
     expect(response[0]).to be == 200
     expect(response[1]['Content-Type']).to be == 'text/plain;charset=utf-8'
     expect(response[2]).to be == ['txt']
-    # get '/txt', {}, { 'HTTP_ACCEPT' => 'text/plain' }
-    # assert ok?
-    # assert_equal 'text/plain;charset=utf-8', response.headers['Content-Type']
-    # assert_body 'txt'
 
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'text/html', 'rack.input' => ''
     expect(response[0]).to be == 200
     expect(response[1]['Content-Type']).to be == 'text/html;charset=utf-8'
     expect(response[2]).to be == ['html']
-    # get '/', {}, { 'HTTP_ACCEPT' => 'text/html' }
-    # assert ok?
-    # assert_equal 'text/html;charset=utf-8', response.headers['Content-Type']
-    # assert_body 'html'
+
   end
 
   it 'allows multiple mime types for accept header' do
@@ -278,19 +224,6 @@ describe 'GET provide conditions' do
       expect(response[1]['Content-Type']).to be == type
       expect(response[2]).to be == [type]
     end
-    # types = ['image/jpeg', 'image/pjpeg']
-    # mock_app {
-    #   get '/', :provides => types do
-    #     env['HTTP_ACCEPT']
-    #   end
-    # }
-
-    # types.each do |type|
-    #   get '/', {}, { 'HTTP_ACCEPT' => type }
-    #   assert ok?
-    #   assert_equal type, body
-    #   assert_equal type, response.headers['Content-Type']
-    # end
   end
 
   it 'respects user agent preferences for the content type' do
@@ -305,11 +238,7 @@ describe 'GET provide conditions' do
 
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/png;q=0.8,text/html;q=0.5', 'rack.input' => ''
     expect(response[2]).to be == ['image/png']
-    # mock_app { get('/', :provides => [:png, :html]) { content_type }}
-    # get '/', {}, { 'HTTP_ACCEPT' => 'image/png;q=0.5,text/html;q=0.8' }
-    # assert_body 'text/html;charset=utf-8'
-    # get '/', {}, { 'HTTP_ACCEPT' => 'image/png;q=0.8,text/html;q=0.5' }
-    # assert_body 'image/png'
+
   end
 
   it 'accepts generic types' do
@@ -330,16 +259,7 @@ describe 'GET provide conditions' do
 
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => '*/*', 'rack.input' => ''
     expect(response[2]).to be == ['application/xml;charset=utf-8']
-    # mock_app do
-    #   get('/', :provides => :xml) { content_type }
-    #   get('/') { 'no match' }
-    # end
-    # get '/', {}, { 'HTTP_ACCEPT' => 'foo/*' }
-    # assert_body 'no match'
-    # get '/', {}, { 'HTTP_ACCEPT' => 'application/*' }
-    # assert_body 'application/xml;charset=utf-8'
-    # get '/', {}, { 'HTTP_ACCEPT' => '*/*' }
-    # assert_body 'application/xml;charset=utf-8'
+
   end
 
 
@@ -355,11 +275,6 @@ describe 'GET provide conditions' do
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/png, text/*', 'rack.input' => ''
     expect(response[2]).to be == ['image/png']
 
-    # mock_app { get('/', :provides => [:png, :html]) { content_type }}
-    # get '/', {}, { 'HTTP_ACCEPT' => 'image/*, text/html' }
-    # assert_body 'text/html;charset=utf-8'
-    # get '/', {}, { 'HTTP_ACCEPT' => 'image/png, text/*' }
-    # assert_body 'image/png'
   end
 
   it 'prefers concrete over fully generic types' do
@@ -373,11 +288,6 @@ describe 'GET provide conditions' do
     
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/png, */*', 'rack.input' => ''
     expect(response[2]).to be == ['image/png']
-    # mock_app { get('/', :provides => [:png, :html]) { content_type }}
-    # get '/', {}, { 'HTTP_ACCEPT' => '*/*, text/html' }
-    # assert_body 'text/html;charset=utf-8'
-    # get '/', {}, { 'HTTP_ACCEPT' => 'image/png, */*' }
-    # assert_body 'image/png'
   end
   
   it 'prefers partly generic over fully generic types' do
@@ -391,12 +301,7 @@ describe 'GET provide conditions' do
     
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/*, */*', 'rack.input' => ''
     expect(response[2]).to be == ['image/png']
-    # mock_app { get('/', :provides => [:png, :html]) { content_type }}
-    # get '/', {}, { 'HTTP_ACCEPT' => '*/*, text/*' }
-    # assert_body 'text/html;charset=utf-8'
-    # get '/', {}, { 'HTTP_ACCEPT' => 'image/*, */*' }
-    # assert_body 'image/png'
-  end
+end
   it 'respects quality with generic types'
   it 'supplies a default quality of 1.0'
   it 'orders types with equal quality by parameter count'
