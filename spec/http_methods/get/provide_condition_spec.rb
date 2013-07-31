@@ -301,8 +301,21 @@ describe 'GET provide conditions' do
     
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/*, */*', 'rack.input' => ''
     expect(response[2]).to be == ['image/png']
-end
-  it 'respects quality with generic types'
+  end
+  
+  it 'respects quality with generic types' do
+    app = Sinatra.new do
+      get '/', :provides => [:png, :html] do
+        content_type
+      end
+    end
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/*;q=1, text/html;q=0', 'rack.input' => ''
+    expect(response[2]).to be == ['image/png']
+
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/png;q=0.5, text/*;q=0.7', 'rack.input' => ''
+    expect(response[2]).to be == ['text/html;charset=utf-8']
+  end
+
   it 'supplies a default quality of 1.0'
   it 'orders types with equal quality by parameter count'
   it 'ignores the quality parameter when ordering by parameter count'
