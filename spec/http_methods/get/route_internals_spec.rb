@@ -13,7 +13,7 @@ describe "GET route internals" do
       list = routes['POST']
     end
 
-    expect(signature.class).to be == Array
+    expect(signature).to be_kind_of(Array)
     expect(signature.length).to be == 4
     expect(list).to include(signature)
   end
