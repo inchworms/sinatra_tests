@@ -263,8 +263,50 @@ describe 'GET provide conditions' do
     # assert_body 'html'
   end
 
-  it 'allows multiple mime types for accept header'
-  it 'respects user agent preferences for the content type'
+  it 'allows multiple mime types for accept header' do
+    types = ['image/jpeg', 'image/pjpeg']
+
+    app = Sinatra.new do
+      get '/', :provides => types do
+        env['HTTP_ACCEPT']
+      end
+    end
+
+    types.each do |type|
+      response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => type, 'rack.input' => ''
+      expect(response[0]).to be == 200
+      expect(response[1]['Content-Type']).to be == type
+      expect(response[2]).to be == [type]
+    end
+
+    # it "allows multiple mime types for accept header" do
+    # types = ['image/jpeg', 'image/pjpeg']
+
+    # mock_app {
+    #   get '/', :provides => types do
+    #     env['HTTP_ACCEPT']
+    #   end
+    # }
+
+    # types.each do |type|
+    #   get '/', {}, { 'HTTP_ACCEPT' => type }
+    #   assert ok?
+    #   assert_equal type, body
+    #   assert_equal type, response.headers['Content-Type']
+    # end
+  end
+
+  it 'respects user agent preferences for the content type' do
+
+
+
+    # mock_app { get('/', :provides => [:png, :html]) { content_type }}
+    # get '/', {}, { 'HTTP_ACCEPT' => 'image/png;q=0.5,text/html;q=0.8' }
+    # assert_body 'text/html;charset=utf-8'
+    # get '/', {}, { 'HTTP_ACCEPT' => 'image/png;q=0.8,text/html;q=0.5' }
+    # assert_body 'image/png'
+  end
+
   it 'accepts generic types'
   it 'prefers concrete over partly generic types'
   it 'prefers concrete over fully generic types'
@@ -273,7 +315,7 @@ describe 'GET provide conditions' do
   it 'supplies a default quality of 1.0'
   it 'orders types with equal quality by parameter count'
   it 'ignores the quality parameter when ordering by parameter count'
-  it 'properly handles quoted strings in parameters'
+  it 'poperly handles quoted strings in parameters'
   it 'accepts both text/javascript and application/javascript for js'
   it 'accepts both text/xml and application/xml for xml'
 
