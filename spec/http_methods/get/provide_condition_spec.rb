@@ -378,7 +378,22 @@ describe 'GET provide conditions' do
     expect(response[2]).to be == ['image/png']
   end
 
-  it 'accepts both text/javascript and application/javascript for js'
+  it 'accepts both text/javascript and application/javascript for js' do
+    app = Sinatra.new do
+      get '/', :provides => :js do
+        content_type
+      end
+    end
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'application/javascript', 'rack.input' => ''
+    expect(response[2]).to be == ['application/javascript;charset=utf-8']
+
+    #     mock_app { get('/', :provides => :js) { content_type }}
+    # get '/', {}, { 'HTTP_ACCEPT' => 'application/javascript' }
+    # assert_body 'application/javascript;charset=utf-8'
+    # get '/', {}, { 'HTTP_ACCEPT' => 'text/javascript' }
+    # assert_body 'text/javascript;charset=utf-8'
+  end
+
   it 'accepts both text/xml and application/xml for xml'
 
 end
