@@ -48,7 +48,7 @@ describe "GET pattern matching" do
       }
 
     app = Sinatra.new do
-      get(RegexpLookAlike.new) do 
+      get(RegexpLookAlike.new) do
         verifier.call(params)
         [201, {},'right on']
       end
@@ -60,9 +60,9 @@ describe "GET pattern matching" do
     expect(response[2]).to be == ["right on"]
 
   end
-  
-  
-  it 'raises a TypeError when pattern is not a String or Regexp' do 
+
+
+  it 'raises a TypeError when pattern is not a String or Regexp' do
     expect { Sinatra.new { get(42){} } }.to raise_error(TypeError)
   end
 

@@ -3,7 +3,8 @@
 require 'spec_helper'
 
 describe 'GET provide conditions' do
-
+# mime-types or content-types two-part identifier for file formats on the Internet
+# a type, a subtype, and zero or more optional parameters
   it 'matches mime_types with dots, hyphens and plus signs' do
     mime_types = %w(
       application/atom+xml
@@ -289,7 +290,7 @@ describe 'GET provide conditions' do
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/png, */*', 'rack.input' => ''
     expect(response[2]).to be == ['image/png']
   end
-  
+
   it 'prefers partly generic over fully generic types' do
     app = Sinatra.new do
       get '/', :provides => [:png, :html] do
@@ -298,11 +299,11 @@ describe 'GET provide conditions' do
     end
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => '*/*, text/*', 'rack.input' => ''
     expect(response[2]).to be == ['text/html;charset=utf-8']
-    
+
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/*, */*', 'rack.input' => ''
     expect(response[2]).to be == ['image/png']
   end
-  
+
   it 'respects quality with generic types' do
     app = Sinatra.new do
       get '/', :provides => [:png, :html] do

@@ -5,8 +5,8 @@ require 'spec_helper'
 describe 'GET route flow' do
 
   context "returns response immediately on halt" do
-    let(:app) do 
-      Sinatra.new do 
+    let(:app) do
+      Sinatra.new do
         get '/' do
           halt 201, {}, 'Hello World'
           'Boo-hoo World'
@@ -64,10 +64,10 @@ describe 'GET route flow' do
   it 'transitions to the next matching route on pass' do
 
     verifier = Proc.new { |request|
-        expect(request.params).not_to include('foo') 
+        expect(request.params).not_to include('foo')
       }
 
-    app = Sinatra.new do 
+    app = Sinatra.new do
       get '/:foo' do
         pass
           'Hello Foo'
@@ -94,7 +94,7 @@ describe 'GET route flow' do
 
   context 'no subsequent route matches' do
     let(:app) do
-      Sinatra.new do 
+      Sinatra.new do
         get ('/:foo') do
           pass
         end
@@ -126,7 +126,7 @@ describe 'GET route flow' do
     end
     
 
-    it 'uses optional block passed to pass as route block if no other route is found' do 
+    it 'uses optional block passed to pass as route block if no other route is found' do
       expect(get('/').body).to be == "this"
     end
   end
@@ -144,7 +144,7 @@ describe 'GET route flow' do
     expect(response[2]).to be == ['foo in baseclass']
 
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar', 'rack.input' => ''
-    expect(response[2]).to be == ['bar in subclass'] 
+    expect(response[2]).to be == ['bar in subclass']
 
   end
   
@@ -154,8 +154,8 @@ describe 'GET route flow' do
     base.get('/foo') { 'foo in baseclass' }
     base.get('/bar') { 'bar in baseclass' }
 
-    app = Sinatra.new(base) do 
-      get'/foo' do 
+    app = Sinatra.new(base) do
+      get'/foo' do
         'foo in subclass'
       end
     end
@@ -164,7 +164,7 @@ describe 'GET route flow' do
     expect(response[2]).to be == ['foo in subclass']
 
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar', 'rack.input' => ''
-    expect(response[2]).to be == ['bar in baseclass'] 
+    expect(response[2]).to be == ['bar in baseclass']
   end
 
   context 'internal request' do
@@ -181,7 +181,7 @@ describe 'GET route flow' do
       end
     end
 
-    it 'allows using call to fire another request internally' do 
+    it 'allows using call to fire another request internally' do
       expect(get('/foo').status).to be == 201
       expect(get('/foo').body).to be == "BAR"
     end
@@ -194,10 +194,10 @@ describe 'GET route flow' do
     inner_app  = Sinatra.new { get('/foo') { 'hello' } }
 
     builder = Rack::Builder.new do
-      use middleware 
-      map('/test') do 
+      use middleware
+      map('/test') do
         run inner_app
-      end     
+      end
     end
 
     let(:app) do

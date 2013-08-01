@@ -2,11 +2,11 @@
 
 require 'spec_helper'
 
-describe "GET host_condition" do 
+describe "GET host_condition" do
 
-	it "passes to the next route when host_name does not match" do
-		app = Sinatra.new do
-			host_name 'example.com'
+  it "passes to the next route when host_name does not match" do
+    app = Sinatra.new do
+      host_name 'example.com'
       get '/foo' do 
         [ 201, {}, 'Hello World']
       end

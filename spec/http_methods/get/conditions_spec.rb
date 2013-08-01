@@ -4,62 +4,62 @@ require 'spec_helper'
 
 
 describe "GET conditions" do
-	it "passes to next route when condition calls pass explicitly" do
-		app = Sinatra.new do
-			condition do
-				pass unless 
-					params[:foo] == 'bar'						
-				end
-			get '/:foo' do
-				[ 201, {}, 'Hello World']
-			end
-		end
+  it "passes to next route when condition calls pass explicitly" do
+    app = Sinatra.new do
+      condition do
+        pass unless
+          params[:foo] == 'bar'
+        end
+      get '/:foo' do
+        [ 201, {}, 'Hello World']
+      end
+    end
 
-		response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar', 'rack.input' => ''
-		expect(response[0]).to be == 201
-		expect(response[2]).to be == ['Hello World']
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar', 'rack.input' => ''
+    expect(response[0]).to be == 201
+    expect(response[2]).to be == ['Hello World']
 
-		response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'rack.input' => ''
- 		expect(response[0]).to be == 404
- 	end
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'rack.input' => ''
+     expect(response[0]).to be == 404
+   end
 
-	it "passes when matching condition returns false" do
-		app = Sinatra.new do
-			condition do 
-				params[:foo] == 'bar'
-			end
-			get '/:foo' do
-				[201, {}, 'Hello World']
-			end
-		end
+  it "passes when matching condition returns false" do
+    app = Sinatra.new do
+      condition do 
+        params[:foo] == 'bar'
+      end
+      get '/:foo' do
+        [201, {}, 'Hello World']
+      end
+    end
 
-		response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar', 'rack.input' => ''
-		expect(response[0]).to be == 201
-		expect(response[2]).to be == ['Hello World']
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar', 'rack.input' => ''
+    expect(response[0]).to be == 201
+    expect(response[2]).to be == ['Hello World']
 
-		response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'rack.input' => ''
-		expect(response[0]).to be == 404
-	end
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'rack.input' => ''
+    expect(response[0]).to be == 404
+  end
 
-	it "does not pass when matching condition returns nil" do
-		app = Sinatra.new do
-			condition do
-				nil
-			end
-			get '/:foo' do
-				[201, {}, 'Hello World']
-			end
-		end
+  it "does not pass when matching condition returns nil" do
+    app = Sinatra.new do
+      condition do
+        nil
+      end
+      get '/:foo' do
+        [201, {}, 'Hello World']
+      end
+    end
 
-		response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar', 'rack.input' => ''
-		expect(response[0]).to be == 201
-		expect(response[2]).to be == ['Hello World']
-	end
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar', 'rack.input' => ''
+    expect(response[0]).to be == 201
+    expect(response[2]).to be == ['Hello World']
+  end
 
-	it 'allows custom route-conditions to be set via route options' do
-		protector = Module.new do 
+  it 'allows custom route-conditions to be set via route options' do
+    protector = Module.new do
       def protect(*args)
-        condition do 
+        condition do
           unless authorize(params["user"], params["password"])
             halt 403, "go away"
           end
@@ -68,13 +68,13 @@ describe "GET conditions" do
     end
 
     app = Sinatra.new do
-    	register protector
+      register protector
 
-    	helpers do
-    		def authorize(username, password)
-    			username == "foo" && password == "bar"
-    		end
-    	end
+      helpers do
+        def authorize(username, password)
+          username == "foo" && password == "bar"
+        end
+      end
 
       get "/", :protect => true do
         "hey"
@@ -83,10 +83,10 @@ describe "GET conditions" do
 
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'rack.input' => ''
     expect(response[0]).to be == 403
-		expect(response[2]).to be == ["go away"]
+    expect(response[2]).to be == ["go away"]
 
-		response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'QUERY_STRING' => 'user=foo&password=bar', 'rack.input' => ''
-		expect(response[0]).to be == 200
-		expect(response[2]).to be == ["hey"]
-	end
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'QUERY_STRING' => 'user=foo&password=bar', 'rack.input' => ''
+    expect(response[0]).to be == 200
+    expect(response[2]).to be == ["hey"]
+  end
 end
