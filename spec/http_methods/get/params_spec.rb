@@ -61,9 +61,9 @@ describe "GET params" do
     end
     # this is throwing an error. it seems that 'expect' doesn't work within a sinatra route handler (i.e the get block)
     it("exposes nested params with indifferent hash") do
-      verifier = Proc.new { |params| 
-        expect(params["bar"][0][:foo]).to eql("baz") 
-        expect(params["bar"][0]["foo"]).to eql("baz") 
+      verifier = Proc.new { |params|
+        expect(params["bar"][0][:foo]).to eql("baz")
+        expect(params["bar"][0]["foo"]).to eql("baz")
       }
       @app = Sinatra.new do
         get '/foo' do
@@ -76,8 +76,8 @@ describe "GET params" do
     end
 
     it("supports arrays within params") do
-      verifier = Proc.new { |params| 
-        expect(params[:bar]).to be == ["A", "B"]    
+      verifier = Proc.new { |params|
+        expect(params[:bar]).to be == ["A", "B"]
       }
       @app = Sinatra.new do
         get '/foo' do
@@ -118,7 +118,7 @@ describe "GET params" do
   context "non-nested params" do
     let(:app) do
       Sinatra.new do
-        get '/foo' do 
+        get '/foo' do
           [ 201, {}, "#{params['article_id']}; #{params['comment']['body']}" ]
         end
       end
