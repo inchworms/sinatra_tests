@@ -113,83 +113,84 @@ describe 'GET provide conditions' do
   application/x-pkcs7-mime
   application/x-pkcs7-signature
   ).each do |mime_type|
-    context mime_type do
-      it "matches the mime_type" do
-        expect(mime_type).to match(Sinatra::Request::HEADER_VALUE_WITH_PARAMS)
-      end
+    it "matches the MIME type #{mime_type}" do
+      expect(mime_type).to match(Sinatra::Request::HEADER_VALUE_WITH_PARAMS)
     end
   end
 
   context 'filters by accept header' do
     let(:app) do
       Sinatra.new do
-        get '/', :provides => :xml do
-         env['HTTP_ACCEPT']
-        end
-        get('/foo', :provides => :html){ env['HTTP_ACCEPT'] }
-        get('/stream', :provides => 'text/event-stream'){ env['HTTP_ACCEPT'] }
+        get('/', :provides => :xml){ env['HTTP_ACCEPT'].to_s }
+        get('/foo', :provides => :html){ env['HTTP_ACCEPT'].to_s }
+        get('/stream', :provides => 'text/event-stream'){ env['HTTP_ACCEPT'].to_s }
       end
     end
-    # app = Sinatra.new do
-    #   get '/', :provides => :xml do
-    #     env['HTTP_ACCEPT']
-    #   end
-    #   get '/foo', :provides => :html do
-    #     env['HTTP_ACCEPT']
-    #   end
-    #   get '/stream', :provides => 'text/event-stream' do
-    #     env['HTTP_ACCEPT']
-    #   end
-    # end
-    let(:response) { get '/', {'HTTP_ACCEPT' => 'application/xml'} }
-    it("returns the correct xml content-type header") { expect(response.header['Content-Type']).to be == 'application/xml;charset=utf-8' }
-    it("returns the correct body") { expect(response.body).to be == 'application/xml;charset=utf-8' }
 
+    context "when sent '/' and 'HTTP_ACCEPT' => 'application/xml'" do
+      let(:response) { get '/', {}, {'HTTP_ACCEPT' => 'application/xml'} }
+      it("returns the correct content-type header") { expect(response.header['Content-Type']).to be == 'application/xml;charset=utf-8' }
+      it("returns the correct body") { expect(response.body).to be == 'application/xml' }
+    end
+
+    context "when sent '/' and HTTP_ACCEPT' => ''" do
+      let(:response) { get '/', {}, {'HTTP_ACCEPT' => ''} }
+      it("returns the correct content-type header") { expect(response.header['Content-Type']).to be == 'application/xml;charset=utf-8' }
+      it("returns the correct body") { expect(response.body).to be == '' }
+    end 
+
+    context "when sent '/' and HTTP_ACCEPT' => '*/*'" do
+      let(:response) { get '/', {}, {'HTTP_ACCEPT' => '*/*'} }
+      it("returns the correct content-type header") { expect(response.header['Content-Type']).to be == 'application/xml;charset=utf-8' }
+      it("returns the correct body") { expect(response.body).to be == '*/*' }
+    end
+
+    context "when sent '/' and HTTP_ACCEPT' => 'text/html;q=0.9'" do
+      let(:response) { get '/', {}, {'HTTP_ACCEPT' => 'text/html;q=0.9'} }
+      it("returns a 404") { expect(response.status).to be == 404 }
+    end
+
+    context "when sent '/foo' and HTTP_ACCEPT' => 'text/html;q=0.9'" do
+      let(:response) { get '/foo', {}, {'HTTP_ACCEPT' => 'text/html;q=0.9'} }
+      it("returns the correct body") { expect(response.body).to be == 'text/html;q=0.9' }
+    end
+
+    context "when sent '/foo' and HTTP_ACCEPT' => ''" do
+      let(:response) { get '/foo', {}, {'HTTP_ACCEPT' => ''} }
+      it("returns the correct body") { expect(response.body).to be == '' }
+    end
+
+    context "when sent '/foo' and HTTP_ACCEPT' => '*/*'" do
+      let(:response) { get '/foo', {}, {'HTTP_ACCEPT' => '*/*'} }
+      it("returns the correct body") { expect(response.body).to be == '*/*' }
+    end
+
+    context "when sent '/foo' and HTTP_ACCEPT' => 'application/xml'" do
+      let(:response) { get '/foo', {}, {'HTTP_ACCEPT' => 'application/xml'} }
+      it("returns a 404") { expect(response.status).to be == 404 }
+    end
     
-    let(:response) { get '/', {'HTTP_ACCEPT' => ''} }
-    it("returns the correct default content-type header") { expect(response.header['Content-Type']).to be == 'application/xml;charset=utf-8' }
-    it("returns the correct body") { expect(response.body).to be == '' }
+    context "when sent '/stream' and HTTP_ACCEPT' => 'text/event-stream'" do
+      let(:response) { get '/stream', {}, {'HTTP_ACCEPT' => 'text/event-stream'} }
+      it("returns the correct body") { expect(response.body).to be == 'text/event-stream' }
+    end
 
-    let(:response) { get '/', {'HTTP_ACCEPT' => '*/*'} }
-    it("returns the correct splat content-type header") { expect(response.header['Content-Type']).to be == 'application/xml;charset=utf-8' }
-    it("returns the correct body") { expect(response.body).to be == '*/*' }
+    context "when sent '/stream' and HTTP_ACCEPT' => ''" do
+      let(:response) { get '/stream', {}, {'HTTP_ACCEPT' => ''} }
+      it("returns the correct body") { expect(response.body).to be == '' }
+    end
 
-    let(:response) { get '/', {'HTTP_ACCEPT' => 'text/html;q=0.9'} }
-    it("returns a 404") { expect(response.status).to be == 404 }
+    context "when sent '/stream' and HTTP_ACCEPT' => '*/*'" do
+      let(:response) { get '/stream', {}, {'HTTP_ACCEPT' => '*/*'} }
+      it("returns the correct body") { expect(response.body).to be == '*/*' }
+    end
 
-    # response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'HTTP_ACCEPT' => 'text/html;q=0.9', 'rack.input' => ''
-    # expect(response[0]).to be == 200
-    # expect(response[2]).to be == ['text/html;q=0.9']
-
-    # response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'HTTP_ACCEPT' => '','rack.input' => ''
-    # expect(response[0]).to be == 200
-    # expect(response[2]).to be == ['']
-
-    # response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'HTTP_ACCEPT' => '*/*', 'rack.input' => ''
-    # expect(response[0]).to be == 200
-    # expect(response[2]).to be == ['*/*']
-
-    # response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'HTTP_ACCEPT' => 'application/xml', 'rack.input' => ''
-    # expect(response[0]).to be == 404
-
-    # response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/stream', 'HTTP_ACCEPT' => 'text/event-stream', 'rack.input' => ''
-    # expect(response[0]).to be == 200
-    # expect(response[2]).to be == ['text/event-stream']
-
-    # response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/stream', 'HTTP_ACCEPT' => '', 'rack.input' => ''
-    # expect(response[0]).to be == 200
-    # expect(response[2]).to be == ['']
- 
-    # response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/stream', 'HTTP_ACCEPT' => '*/*', 'rack.input' => ''
-    # expect(response[0]).to be == 200
-    # expect(response[2]).to be == ['*/*']
-
-    # response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/stream', 'HTTP_ACCEPT' => 'application/xml', 'rack.input' => ''
-    # expect(response[0]).to be == 404
+     context "when sent '/stream' and HTTP_ACCEPT' => 'application/xml'" do
+      let(:response) { get '/stream', {}, {'HTTP_ACCEPT' =>  'application/xml'} }
+      it("returns a 404") { expect(response.status).to be == 404 }
+    end
 
   end
-
-
 
   it 'filters by current Content-Type' do
     app = Sinatra.new do
