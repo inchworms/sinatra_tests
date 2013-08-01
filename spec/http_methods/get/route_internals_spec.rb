@@ -1,8 +1,8 @@
 # encoding: utf-8
 
 require 'spec_helper'
-# TODO: post!
-describe "GET route internals" do
+
+describe "route internals" do
 
   it "returns the route signature" do
 
