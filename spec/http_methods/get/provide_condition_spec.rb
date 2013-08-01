@@ -123,7 +123,9 @@ describe 'GET provide conditions' do
   context 'filters by accept header' do
     let(:app) do
       Sinatra.new do
-        get('/', :provides => :xml){ env['HTTP_ACCEPT'] }
+        get '/', :provides => :xml do
+         env['HTTP_ACCEPT']
+        end
         get('/foo', :provides => :html){ env['HTTP_ACCEPT'] }
         get('/stream', :provides => 'text/event-stream'){ env['HTTP_ACCEPT'] }
       end
@@ -140,21 +142,20 @@ describe 'GET provide conditions' do
     #   end
     # end
     let(:response) { get '/', {'HTTP_ACCEPT' => 'application/xml'} }
-    it("returns the correct content-type header") { expect(response.header['Content-Type']).to be == 'application/xml;charset=utf-8' }
-    # expect(response.body).to be == ['application/xml']
+    it("returns the correct xml content-type header") { expect(response.header['Content-Type']).to be == 'application/xml;charset=utf-8' }
+    it("returns the correct body") { expect(response.body).to be == 'application/xml;charset=utf-8' }
 
-    # response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => '','rack.input' => ''
-    # expect(response[0]).to be == 200
-    # expect(response[1]['Content-Type']).to be == 'application/xml;charset=utf-8'
-    # expect(response[2]).to be == ['']
+    
+    let(:response) { get '/', {'HTTP_ACCEPT' => ''} }
+    it("returns the correct default content-type header") { expect(response.header['Content-Type']).to be == 'application/xml;charset=utf-8' }
+    it("returns the correct body") { expect(response.body).to be == '' }
 
-    # response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => '*/*', 'rack.input' => ''
-    # expect(response[0]).to be == 200
-    # expect(response[1]['Content-Type']).to be == 'application/xml;charset=utf-8'
-    # expect(response[2]).to be == ['*/*']
+    let(:response) { get '/', {'HTTP_ACCEPT' => '*/*'} }
+    it("returns the correct splat content-type header") { expect(response.header['Content-Type']).to be == 'application/xml;charset=utf-8' }
+    it("returns the correct body") { expect(response.body).to be == '*/*' }
 
-    # response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'text/html;q=0.9', 'rack.input' => ''
-    # expect(response[0]).to be == 404
+    let(:response) { get '/', {'HTTP_ACCEPT' => 'text/html;q=0.9'} }
+    it("returns a 404") { expect(response.status).to be == 404 }
 
     # response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'HTTP_ACCEPT' => 'text/html;q=0.9', 'rack.input' => ''
     # expect(response[0]).to be == 200
