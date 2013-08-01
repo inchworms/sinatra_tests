@@ -53,10 +53,9 @@ describe "GET params" do
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'rack.input' => ''
     expect(response[2]).to be == ["foo=;bar="]
   end
-  
 
   context "nested params" do
-    def app 
+    def app
       @app
     end
     # this is throwing an error. it seems that 'expect' doesn't work within a sinatra route handler (i.e the get block)
