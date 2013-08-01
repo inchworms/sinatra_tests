@@ -192,32 +192,34 @@ describe 'GET provide conditions' do
 
   end
 
-  it 'filters by current Content-Type' do
-    app = Sinatra.new do
-      before('/txt') { content_type :txt }
-      get '*', :provides => :txt do
-        'txt'
-      end
-      before('/html') { content_type :html }
-      get '*', :provides => :html do
-        'html'
+  context 'filters by current Content-Type' do
+    let(:app) do
+      Sinatra.new do
+        before('/txt') { content_type :txt }
+        get('*', :provides => :txt) { 'txt' }
+        before('/html') { content_type :html }
+        get('*', :provides => :html) { 'html' }
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => '*/*', 'rack.input' => ''
-    expect(response[0]).to be == 200
-    expect(response[1]['Content-Type']).to be == 'text/plain;charset=utf-8'
-    expect(response[2]).to be == ['txt']
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/txt', 'HTTP_ACCEPT' => 'text/plain', 'rack.input' => ''
-    expect(response[0]).to be == 200
-    expect(response[1]['Content-Type']).to be == 'text/plain;charset=utf-8'
-    expect(response[2]).to be == ['txt']
+    context "with '/' and HTTP_ACCEPT' => '*/*'" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' =>  '*/*'} }
+      it("returns correct Content-Type"){ expect(response.header['Content-Type']).to be == 'text/plain;charset=utf-8' }
+      it("returns correct body"){ expect(response.body).to be == 'txt' }
+    end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'text/html', 'rack.input' => ''
-    expect(response[0]).to be == 200
-    expect(response[1]['Content-Type']).to be == 'text/html;charset=utf-8'
-    expect(response[2]).to be == ['html']
+    context "with '/txt' and HTTP_ACCEPT' => 'text/plain'" do
+      let(:response){ get '/txt', {}, {'HTTP_ACCEPT' =>  'text/plain'} }
+      it("returns correct Content-Type"){ expect(response.header['Content-Type']).to be == 'text/plain;charset=utf-8' }
+      it("returns correct body"){ expect(response.body).to be == 'txt' }
+    end
 
+
+    context "with '/' and HTTP_ACCEPT' => 'text/html'" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' =>  'text/html'} }
+      it("returns correct Content-Type"){ expect(response.header['Content-Type']).to be == 'text/html;charset=utf-8' }
+      it("returns correct body"){ expect(response.body).to be == 'html' }
+    end
   end
 
   it 'allows multiple mime types for accept header' do
