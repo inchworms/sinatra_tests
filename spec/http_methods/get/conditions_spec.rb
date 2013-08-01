@@ -2,7 +2,6 @@
 
 require 'spec_helper'
 
-
 describe "GET conditions" do
   it "passes to next route when condition calls pass explicitly" do
     app = Sinatra.new do
