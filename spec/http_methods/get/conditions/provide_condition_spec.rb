@@ -5,7 +5,7 @@ require 'spec_helper'
 describe 'GET provide conditions' do
 # mime-types or content-types two-part identifier for file formats on the Internet
 # a type, a subtype, and zero or more optional parameters
-  it 'matches mime_types with dots, hyphens and plus signs' do
+  context 'matching mime types with dots, hyphens and plus signs' do
     mime_types = %w(
       application/atom+xml
       application/ecmascript
@@ -115,7 +115,11 @@ describe 'GET provide conditions' do
       application/x-pkcs7-signature
       )
     #iterate through the above array to majke a seperate test for each
-    mime_types.each { |mime_type| expect(mime_type).to match(Sinatra::Request::HEADER_VALUE_WITH_PARAMS) }
+    mime_types.each do |mime_type| 
+      it "matches #{mime_type} correctly" do
+        expect(mime_type).to match(Sinatra::Request::HEADER_VALUE_WITH_PARAMS)
+      end
+    end
   end
 
   context 'filters by accept header' do
