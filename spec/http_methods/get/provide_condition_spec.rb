@@ -256,26 +256,29 @@ describe 'GET provide conditions' do
       it("returns content-type:image/png"){ expect(response.body).to be == 'image/png' }
     end
   end
-
-  it 'accepts generic types' do
-    app = Sinatra.new do
-      get '/', :provides => :xml do
-        content_type
-      end
-      get '/' do
-        'no match'
+#TODO: Don't understand why sinatra is doing it
+  context 'accepts generic types' do
+    let(:app) do
+      Sinatra.new do
+        get('/', :provides => :xml){ content_type }
+        get('/'){'no match'}
       end
     end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'foo/*', 'rack.input' => ''
-    expect(response[2]).to be == ['no match']
+    context "'HTTP_ACCEPT' => 'foo/*'" do
+      let(:response){get '/', {}, {'HTTP_ACCEPT' => 'foo/*'} }
+      it("does not find a match"){ expect(response.body).to be == 'no match' }
+    end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'application/*', 'rack.input' => ''
-    expect(response[2]).to be == ['application/xml;charset=utf-8']
+    context "'HTTP_ACCEPT' => 'application/*'" do
+      let(:response){get '/', {}, {'HTTP_ACCEPT' => 'application/*'} }
+      it("find the correct content_type"){ expect(response.body).to be == 'application/xml;charset=utf-8' }
+    end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => '*/*', 'rack.input' => ''
-    expect(response[2]).to be == ['application/xml;charset=utf-8']
-
+    context "'HTTP_ACCEPT' => '*/*'" do
+      let(:response){get '/', {}, {'HTTP_ACCEPT' => '*/*'} }
+      it("find the correct content_type"){ expect(response.body).to be == 'application/xml;charset=utf-8' }
+    end
   end
 
 
