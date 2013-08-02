@@ -248,15 +248,15 @@ describe 'GET provide conditions' do
 
     context "when HTTP_ACCEPT = image/png;q=0.5,text/html;q=0.8" do
       let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/png;q=0.5,text/html;q=0.8'} }
-      it("it returns content-type:text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
+      it("returns content-type:text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
     end
 
     context "when HTTP_ACCEPT = image/png;q=0.8,text/html;q=0.5" do
       let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/png;q=0.8,text/html;q=0.5'} }
-      it("it returns content-type:image/png"){ expect(response.body).to be == 'image/png' }
+      it("returns content-type:image/png"){ expect(response.body).to be == 'image/png' }
     end
   end
-#TODO: Don't understand why sinatra is doing it
+
   context 'accepts generic content-types' do
     let(:app) do
       Sinatra.new do
@@ -285,17 +285,17 @@ describe 'GET provide conditions' do
     let(:app) do
       Sinatra.new do
         get('/', :provides => [:png, :html]){ content_type }
-     end
+      end
     end
 
     context "when HTTP_ACCEPT = image/*, text/html" do
       let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/*, text/html'} }
-      it("it prefers text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
+      it("prefers text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
     end
 
     context "when HTTP_ACCEPT = image/png, text/*" do
       let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/png, text/*'} }
-      it("it prefers image/png"){ expect(response.body).to be == 'image/png' }
+      it("prefers image/png"){ expect(response.body).to be == 'image/png' }
     end
   end
 
@@ -308,12 +308,12 @@ describe 'GET provide conditions' do
 
     context "when HTTP_ACCEPT = */*, text/html" do
       let(:response){ get '/', {}, {'HTTP_ACCEPT' => '*/*, text/html'} }
-      it("it prefers text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
+      it("prefers text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
     end
     
     context "when HTTP_ACCEPT = image/png, */*" do
       let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/png, */*'} }
-      it("it prefers image/png"){ expect(response.body).to be == 'image/png' }
+      it("prefers image/png"){ expect(response.body).to be == 'image/png' }
     end
   end
 
@@ -326,12 +326,12 @@ describe 'GET provide conditions' do
 
     context "when HTTP_ACCEPT = */*, text/*" do
       let(:response){ get '/', {}, {'HTTP_ACCEPT' => '*/*, text/*'} }
-      it("it prefers text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
+      it("prefers text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
     end
 
     context "when HTTP_ACCEPT = image/*, */*" do
       let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/*, */*'} }
-      it("it prefers image/png"){ expect(response.body).to be == 'image/png' }
+      it("prefers image/png"){ expect(response.body).to be == 'image/png' }
     end
   end
 
@@ -344,12 +344,12 @@ describe 'GET provide conditions' do
 
     context "when HTTP_ACCEPT = image/*;q=1, text/html;q=0" do
       let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/*;q=1, text/html;q=0'} }
-      it("it prefers image/png"){ expect(response.body).to be == 'image/png' }
+      it("prefers image/png"){ expect(response.body).to be == 'image/png' }
     end
 
     context "when HTTP_ACCEPT = image/png;q=0.5, text/*;q=0.7" do
       let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/png;q=0.5, text/*;q=0.7'} }
-      it("it prefers text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
+      it("prefers text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
     end
   end
 
@@ -362,7 +362,7 @@ describe 'GET provide conditions' do
 
     context "when HTTP_ACCEPT = image/png;q=0.5, text/*" do
       let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/png;q=0.5, text/*'} }
-      it("it prefers text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
+      it("prefers text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
     end
   end
 
@@ -379,12 +379,12 @@ describe 'GET provide conditions' do
 
     context "when HTTP_ACCEPT = #{lo_png}, #{jpeg}" do
       let(:response){ get '/', {} , {'HTTP_ACCEPT' => "#{lo_png}, #{jpeg}"} }
-      it("it prefers image/jpeg"){ expect(response.body).to be == 'image/jpeg' }
+      it("prefers image/jpeg"){ expect(response.body).to be == 'image/jpeg' }
     end
 
     context "when HTTP_ACCEPT = #{hi_png}, #{jpeg}" do
       let(:response){ get '/', {} , {'HTTP_ACCEPT' => "#{hi_png}, #{jpeg}"} }
-      it("it prefers image/png"){ expect(response.body).to be == 'image/png' }
+      it("prefers image/png"){ expect(response.body).to be == 'image/png' }
     end
   end
 
@@ -401,12 +401,12 @@ describe 'GET provide conditions' do
 
     context "when HTTP_ACCEPT = #{jpeg}, #{lo_png}" do
       let(:response){ get '/', {}, {'HTTP_ACCEPT' => "#{jpeg}, #{lo_png}"} }
-      it("it prefers image/jpeg"){ expect(response.body).to be == 'image/jpeg' }
+      it("prefers image/jpeg"){ expect(response.body).to be == 'image/jpeg' }
     end
 
     context "when HTTP_ACCEPT = #{jpeg}, #{hi_png}" do
       let(:response){ get '/', {}, {'HTTP_ACCEPT' => "#{jpeg}, #{hi_png}"} }
-      it("it prefers image/png"){ expect(response.body).to be == 'image/png' }
+      it("prefers image/png"){ expect(response.body).to be == 'image/png' }
     end
   end
 #DOTO: don't get that
