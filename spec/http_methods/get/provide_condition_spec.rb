@@ -214,28 +214,27 @@ describe 'GET provide conditions' do
       it("returns correct body"){ expect(response.body).to be == 'txt' }
     end
 
-
     context "with '/' and HTTP_ACCEPT' => 'text/html'" do
-      let(:response){ get '/', {}, {'HTTP_ACCEPT' =>  'text/html'} }
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'text/html'} }
       it("returns correct Content-Type"){ expect(response.header['Content-Type']).to be == 'text/html;charset=utf-8' }
       it("returns correct body"){ expect(response.body).to be == 'html' }
     end
   end
 
-  it 'allows multiple mime types for accept header' do
+  context 'multiple mime-types for accept header' do
     types = ['image/jpeg', 'image/pjpeg']
-
-    app = Sinatra.new do
-      get '/', :provides => types do
-        env['HTTP_ACCEPT']
+    let(:app) do
+      Sinatra.new do
+        get('/', :provides => types){ env['HTTP_ACCEPT'] }
       end
     end
 
     types.each do |type|
-      response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => type, 'rack.input' => ''
-      expect(response[0]).to be == 200
-      expect(response[1]['Content-Type']).to be == type
-      expect(response[2]).to be == [type]
+      context "allows #{type} as mime-type" do
+        let(:response){ get '/', {}, {'HTTP_ACCEPT' => type} }
+        it("returns correct content_type"){ expect(response.header['Content-Type']).to be == type }
+        it("returns correct body"){ expect(response.body).to be == type }
+      end
     end
   end
 
