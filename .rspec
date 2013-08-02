@@ -1,6 +1,3 @@
 
---require emoji-rspec
-
 --color
---format progress
---format thumbs
+--format documentation
