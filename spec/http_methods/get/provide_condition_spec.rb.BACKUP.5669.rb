@@ -207,16 +207,28 @@ describe 'GET provide conditions' do
       it("returns correct Content-Type"){ expect(response.header['Content-Type']).to be == 'text/plain;charset=utf-8' }
       it("returns correct body"){ expect(response.body).to be == 'txt' }
     end
+<<<<<<< HEAD
 
     context "with '/txt' and HTTP_ACCEPT' => 'text/plain'" do
-      let(:response){ get '/txt', {}, {'HTTP_ACCEPT' => 'text/plain'} }
+      let(:response){ get '/txt', {}, {'HTTP_ACCEPT' =>  'text/plain'} }
       it("returns correct Content-Type"){ expect(response.header['Content-Type']).to be == 'text/plain;charset=utf-8' }
       it("returns correct body"){ expect(response.body).to be == 'txt' }
     end
 
     context "with '/' and HTTP_ACCEPT' => 'text/html'" do
       let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'text/html'} }
+=======
 
+    context "with '/txt' and HTTP_ACCEPT' => 'text/plain'" do
+      let(:response){ get '/txt', {}, {'HTTP_ACCEPT' =>  'text/plain'} }
+      it("returns correct Content-Type"){ expect(response.header['Content-Type']).to be == 'text/plain;charset=utf-8' }
+      it("returns correct body"){ expect(response.body).to be == 'txt' }
+    end
+
+
+    context "with '/' and HTTP_ACCEPT' => 'text/html'" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' =>  'text/html'} }
+>>>>>>> 042476a4da714c3e5b2746a313cec24164edb947
       it("returns correct Content-Type"){ expect(response.header['Content-Type']).to be == 'text/html;charset=utf-8' }
       it("returns correct body"){ expect(response.body).to be == 'html' }
     end

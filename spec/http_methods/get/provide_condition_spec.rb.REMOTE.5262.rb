@@ -209,52 +209,49 @@ describe 'GET provide conditions' do
     end
 
     context "with '/txt' and HTTP_ACCEPT' => 'text/plain'" do
-      let(:response){ get '/txt', {}, {'HTTP_ACCEPT' => 'text/plain'} }
+      let(:response){ get '/txt', {}, {'HTTP_ACCEPT' =>  'text/plain'} }
       it("returns correct Content-Type"){ expect(response.header['Content-Type']).to be == 'text/plain;charset=utf-8' }
       it("returns correct body"){ expect(response.body).to be == 'txt' }
     end
 
-    context "with '/' and HTTP_ACCEPT' => 'text/html'" do
-      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'text/html'} }
 
+    context "with '/' and HTTP_ACCEPT' => 'text/html'" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' =>  'text/html'} }
       it("returns correct Content-Type"){ expect(response.header['Content-Type']).to be == 'text/html;charset=utf-8' }
       it("returns correct body"){ expect(response.body).to be == 'html' }
     end
   end
 
-  context 'multiple mime-types for accept header' do
+  it 'allows multiple mime types for accept header' do
     types = ['image/jpeg', 'image/pjpeg']
-    let(:app) do
-      Sinatra.new do
-        get('/', :provides => types){ env['HTTP_ACCEPT'] }
+
+    app = Sinatra.new do
+      get '/', :provides => types do
+        env['HTTP_ACCEPT']
       end
     end
 
     types.each do |type|
-      context "allows #{type} as mime-type" do
-        let(:response){ get '/', {}, {'HTTP_ACCEPT' => type} }
-        it("returns correct content_type"){ expect(response.header['Content-Type']).to be == type }
-        it("returns correct body"){ expect(response.body).to be == type }
-      end
+      response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => type, 'rack.input' => ''
+      expect(response[0]).to be == 200
+      expect(response[1]['Content-Type']).to be == type
+      expect(response[2]).to be == [type]
     end
   end
 
-  context 'respects user agent preferences for the content type' do
-    let(:app) do
-      Sinatra.new do
-        get('/', :provides => [:png, :html]){ content_type }
+  it 'respects user agent preferences for the content type' do
+    app = Sinatra.new do
+      get '/', :provides => [:png, :html] do
+        content_type
       end
     end
 
-    context "image/png;q=0.5,text/html;q=0.8" do
-      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/png;q=0.5,text/html;q=0.8'} }
-      it("returns content-type:text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
-    end
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/png;q=0.5,text/html;q=0.8', 'rack.input' => ''
+    expect(response[2]).to be == ['text/html;charset=utf-8']
 
-    context "image/png;q=0.8,text/html;q=0.5" do
-      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/png;q=0.8,text/html;q=0.5'} }
-      it("returns content-type:image/png"){ expect(response.body).to be == 'image/png' }
-    end
+    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/png;q=0.8,text/html;q=0.5', 'rack.input' => ''
+    expect(response[2]).to be == ['image/png']
+
   end
 
   it 'accepts generic types' do
