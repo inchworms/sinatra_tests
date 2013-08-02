@@ -409,21 +409,28 @@ describe 'GET provide conditions' do
       it("it prefers image/png"){ expect(response.body).to be == 'image/png' }
     end
   end
-
-  it 'poperly handles quoted strings in parameters' do
-    app = Sinatra.new do
-      get '/', :provides => [:png, :jpg] do
-        content_type
+#DOTO: don't get that
+  context 'properly handles quoted strings in parameters' do
+    let(:app) do
+      Sinatra.new do
+        get('/', :provides => [:png, :jpg]){ content_type }
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/png;q=0.5;profile=",image/jpeg,"', 'rack.input' => ''
-    expect(response[2]).to be == ['image/png']
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/png;q=0.5,image/jpeg;q=0;x=";q=1.0"', 'rack.input' => ''
-    expect(response[2]).to be == ['image/png']
+    context "when HTTP_ACCEPT = image/png;q=0.5;profile=',image/jpeg,'" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/png;q=0.5;profile=",image/jpeg,"'} }
+      it("the content_type is image/png"){ expect(response.body).to be == 'image/png' }
+    end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/png;q=0.5,image/jpeg;q=0;x="\";q=1.0"', 'rack.input' => ''
-    expect(response[2]).to be == ['image/png']
+    context "when HTTP_ACCEPT = image/png;q=0.5, image/jpeg;q=0;x=';q=1.0'" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/png;q=0.5, image/jpeg;q=0;x=";q=1.0"'} }
+      it("the content-type is image/png"){ expect(response.body).to be == 'image/png' }
+    end
+
+    context "when HTTP_ACCEPT = image/png;q=0.5, image/jpeg;q=0;x='/\';q=1.0" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/png;q=0.5, image/jpeg;q=0;x="\";q=1.0"'} }
+      it("the content-type is image/png"){ expect(response.body).to be == 'image/png' }
+    end
   end
 
   it 'accepts both text/javascript and application/javascript for js' do
