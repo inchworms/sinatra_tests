@@ -3,7 +3,8 @@
 require 'spec_helper'
 
 describe 'GET provide conditions' do
-
+# mime-types or content-types two-part identifier for file formats on the Internet
+# a type, a subtype, and zero or more optional parameters
   it 'matches mime_types with dots, hyphens and plus signs' do
     mime_types = %w(
       application/atom+xml
@@ -117,220 +118,258 @@ describe 'GET provide conditions' do
     mime_types.each { |mime_type| expect(mime_type).to match(Sinatra::Request::HEADER_VALUE_WITH_PARAMS) }
   end
 
-  it 'filters by accept header' do
-    app = Sinatra.new do
-      get '/', :provides => :xml do
-        env['HTTP_ACCEPT']
-      end
-      get '/foo', :provides => :html do
-        env['HTTP_ACCEPT']
-      end
-      get '/stream', :provides => 'text/event-stream' do
-        env['HTTP_ACCEPT']
+  context 'filters by accept header' do
+    let(:app) do
+      Sinatra.new do
+        get('/', :provides => :xml){ env['HTTP_ACCEPT'].to_s }
+        get('/foo', :provides => :html){ env['HTTP_ACCEPT'].to_s }
+        get('/stream', :provides => 'text/event-stream'){ env['HTTP_ACCEPT'].to_s }
       end
     end
-    #132-135 should be an it block
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'application/xml', 'rack.input' => ''
+
+    context "when sent '/' and 'HTTP_ACCEPT' => 'application/xml'" do
+      let(:response) { get '/', {}, {'HTTP_ACCEPT' => 'application/xml'} }
+      it("returns the correct content-type header") { expect(response.header['Content-Type']).to be == 'application/xml;charset=utf-8' }
+      it("returns the correct body") { expect(response.body).to be == 'application/xml' }
+    end
+
+    context "when sent '/' and HTTP_ACCEPT' => ''" do
+      let(:response) { get '/', {}, {'HTTP_ACCEPT' => ''} }
+      it("returns the correct content-type header") { expect(response.header['Content-Type']).to be == 'application/xml;charset=utf-8' }
+      it("returns the correct body") { expect(response.body).to be == '' }
+    end 
+
+    context "when sent '/' and HTTP_ACCEPT' => '*/*'" do
+      let(:response) { get '/', {}, {'HTTP_ACCEPT' => '*/*'} }
+      it("returns the correct content-type header") { expect(response.header['Content-Type']).to be == 'application/xml;charset=utf-8' }
+      it("returns the correct body") { expect(response.body).to be == '*/*' }
+    end
+
+    context "when sent '/' and HTTP_ACCEPT' => 'text/html;q=0.9'" do
+      let(:response) { get '/', {}, {'HTTP_ACCEPT' => 'text/html;q=0.9'} }
+      it("returns a 404") { expect(response.status).to be == 404 }
+    end
+
+    context "when sent '/foo' and HTTP_ACCEPT' => 'text/html;q=0.9'" do
+      let(:response) { get '/foo', {}, {'HTTP_ACCEPT' => 'text/html;q=0.9'} }
+      it("returns the correct body") { expect(response.body).to be == 'text/html;q=0.9' }
+    end
+
+    context "when sent '/foo' and HTTP_ACCEPT' => ''" do
+      let(:response) { get '/foo', {}, {'HTTP_ACCEPT' => ''} }
+      it("returns the correct body") { expect(response.body).to be == '' }
+    end
+
+    context "when sent '/foo' and HTTP_ACCEPT' => '*/*'" do
+      let(:response) { get '/foo', {}, {'HTTP_ACCEPT' => '*/*'} }
+      it("returns the correct body") { expect(response.body).to be == '*/*' }
+    end
+
+    context "when sent '/foo' and HTTP_ACCEPT' => 'application/xml'" do
+      let(:response) { get '/foo', {}, {'HTTP_ACCEPT' => 'application/xml'} }
+      it("returns a 404") { expect(response.status).to be == 404 }
+    end
     
-    expect(response[1]['Content-Type']).to be == 'application/xml;charset=utf-8'
-    expect(response[2]).to be == ['application/xml']
+    context "when sent '/stream' and HTTP_ACCEPT' => 'text/event-stream'" do
+      let(:response) { get '/stream', {}, {'HTTP_ACCEPT' => 'text/event-stream'} }
+      it("returns the correct body") { expect(response.body).to be == 'text/event-stream' }
+    end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => '','rack.input' => ''
-    expect(response[0]).to be == 200
-    expect(response[1]['Content-Type']).to be == 'application/xml;charset=utf-8'
-    expect(response[2]).to be == ['']
+    context "when sent '/stream' and HTTP_ACCEPT' => ''" do
+      let(:response) { get '/stream', {}, {'HTTP_ACCEPT' => ''} }
+      it("returns the correct body") { expect(response.body).to be == '' }
+    end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => '*/*', 'rack.input' => ''
-    expect(response[0]).to be == 200
-    expect(response[1]['Content-Type']).to be == 'application/xml;charset=utf-8'
-    expect(response[2]).to be == ['*/*']
+    context "when sent '/stream' and HTTP_ACCEPT' => '*/*'" do
+      let(:response) { get '/stream', {}, {'HTTP_ACCEPT' => '*/*'} }
+      it("returns the correct body") { expect(response.body).to be == '*/*' }
+    end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'text/html;q=0.9', 'rack.input' => ''
-    expect(response[0]).to be == 404
-
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'HTTP_ACCEPT' => 'text/html;q=0.9', 'rack.input' => ''
-    expect(response[0]).to be == 200
-    expect(response[2]).to be == ['text/html;q=0.9']
-
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'HTTP_ACCEPT' => '','rack.input' => ''
-    expect(response[0]).to be == 200
-    expect(response[2]).to be == ['']
-
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'HTTP_ACCEPT' => '*/*', 'rack.input' => ''
-    expect(response[0]).to be == 200
-    expect(response[2]).to be == ['*/*']
-
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'HTTP_ACCEPT' => 'application/xml', 'rack.input' => ''
-    expect(response[0]).to be == 404
-
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/stream', 'HTTP_ACCEPT' => 'text/event-stream', 'rack.input' => ''
-    expect(response[0]).to be == 200
-    expect(response[2]).to be == ['text/event-stream']
-
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/stream', 'HTTP_ACCEPT' => '', 'rack.input' => ''
-    expect(response[0]).to be == 200
-    expect(response[2]).to be == ['']
- 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/stream', 'HTTP_ACCEPT' => '*/*', 'rack.input' => ''
-    expect(response[0]).to be == 200
-    expect(response[2]).to be == ['*/*']
-
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/stream', 'HTTP_ACCEPT' => 'application/xml', 'rack.input' => ''
-    expect(response[0]).to be == 404
+     context "when sent '/stream' and HTTP_ACCEPT' => 'application/xml'" do
+      let(:response) { get '/stream', {}, {'HTTP_ACCEPT' =>  'application/xml'} }
+      it("returns a 404") { expect(response.status).to be == 404 }
+    end
 
   end
 
-
-
-  it 'filters by current Content-Type' do
-    app = Sinatra.new do
-      before('/txt') { content_type :txt }
-      get '*', :provides => :txt do
-        'txt'
-      end
-      before('/html') { content_type :html }
-      get '*', :provides => :html do
-        'html'
+  context 'filters by current content-type' do
+    let(:app) do
+      Sinatra.new do
+        before('/txt') { content_type :txt }
+        get('*', :provides => :txt) { 'txt' }
+        before('/html') { content_type :html }
+        get('*', :provides => :html) { 'html' }
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => '*/*', 'rack.input' => ''
-    expect(response[0]).to be == 200
-    expect(response[1]['Content-Type']).to be == 'text/plain;charset=utf-8'
-    expect(response[2]).to be == ['txt']
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/txt', 'HTTP_ACCEPT' => 'text/plain', 'rack.input' => ''
-    expect(response[0]).to be == 200
-    expect(response[1]['Content-Type']).to be == 'text/plain;charset=utf-8'
-    expect(response[2]).to be == ['txt']
+    context "with '/' and HTTP_ACCEPT' => '*/*'" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => '*/*'} }
+      it("returns correct Content-Type"){ expect(response.header['Content-Type']).to be == 'text/plain;charset=utf-8' }
+      it("returns correct body"){ expect(response.body).to be == 'txt' }
+    end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'text/html', 'rack.input' => ''
-    expect(response[0]).to be == 200
-    expect(response[1]['Content-Type']).to be == 'text/html;charset=utf-8'
-    expect(response[2]).to be == ['html']
+    context "with '/txt' and HTTP_ACCEPT' => 'text/plain'" do
+      let(:response){ get '/txt', {}, {'HTTP_ACCEPT' => 'text/plain'} }
+      it("returns correct Content-Type"){ expect(response.header['Content-Type']).to be == 'text/plain;charset=utf-8' }
+      it("returns correct body"){ expect(response.body).to be == 'txt' }
+    end
 
+    context "with '/' and HTTP_ACCEPT' => 'text/html'" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'text/html'} }
+
+      it("returns correct Content-Type"){ expect(response.header['Content-Type']).to be == 'text/html;charset=utf-8' }
+      it("returns correct body"){ expect(response.body).to be == 'html' }
+    end
   end
 
-  it 'allows multiple mime types for accept header' do
+  context 'multiple content-types for accept header' do
     types = ['image/jpeg', 'image/pjpeg']
-
-    app = Sinatra.new do
-      get '/', :provides => types do
-        env['HTTP_ACCEPT']
+    let(:app) do
+      Sinatra.new do
+        get('/', :provides => types){ env['HTTP_ACCEPT'] }
       end
     end
 
     types.each do |type|
-      response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => type, 'rack.input' => ''
-      expect(response[0]).to be == 200
-      expect(response[1]['Content-Type']).to be == type
-      expect(response[2]).to be == [type]
+      context "allows #{type} as content-type" do
+        let(:response){ get '/', {}, {'HTTP_ACCEPT' => type} }
+        it("returns correct content_type"){ expect(response.header['Content-Type']).to be == type }
+        it("returns correct body"){ expect(response.body).to be == type }
+      end
     end
   end
 
-  it 'respects user agent preferences for the content type' do
-    app = Sinatra.new do
-      get '/', :provides => [:png, :html] do
-        content_type
+  context 'respects user agent preferences for the content-type' do
+    let(:app) do
+      Sinatra.new do
+        get('/', :provides => [:png, :html]){ content_type }
       end
     end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/png;q=0.5,text/html;q=0.8', 'rack.input' => ''
-    expect(response[2]).to be == ['text/html;charset=utf-8']
+    context "when HTTP_ACCEPT = image/png;q=0.5,text/html;q=0.8" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/png;q=0.5,text/html;q=0.8'} }
+      it("returns content-type:text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
+    end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/png;q=0.8,text/html;q=0.5', 'rack.input' => ''
-    expect(response[2]).to be == ['image/png']
-
+    context "when HTTP_ACCEPT = image/png;q=0.8,text/html;q=0.5" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/png;q=0.8,text/html;q=0.5'} }
+      it("returns content-type:image/png"){ expect(response.body).to be == 'image/png' }
+    end
   end
 
-  it 'accepts generic types' do
-    app = Sinatra.new do
-      get '/', :provides => :xml do
-        content_type
-      end
-      get '/' do
-        'no match'
+  context 'accepts generic content-types' do
+    let(:app) do
+      Sinatra.new do
+        get('/', :provides => :xml){ content_type }
+        get('/'){'no match'}
       end
     end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'foo/*', 'rack.input' => ''
-    expect(response[2]).to be == ['no match']
+    context "when HTTP_ACCEPT = 'foo/*'" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'foo/*'} }
+      it("does not find a match"){ expect(response.body).to be == 'no match' }
+    end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'application/*', 'rack.input' => ''
-    expect(response[2]).to be == ['application/xml;charset=utf-8']
+    context "when HTTP_ACCEPT = 'application/*'" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'application/*'} }
+      it("content_type is application/xml"){ expect(response.body).to be == 'application/xml;charset=utf-8' }
+    end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => '*/*', 'rack.input' => ''
-    expect(response[2]).to be == ['application/xml;charset=utf-8']
-
+    context "when HTTP_ACCEPT = '*/*'" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => '*/*'} }
+      it("content_type is application/xml"){ expect(response.body).to be == 'application/xml;charset=utf-8' }
+    end
   end
 
+  context 'prefers concrete over partly generic content-types' do
+    let(:app) do
+      Sinatra.new do
+        get('/', :provides => [:png, :html]){ content_type }
+      end
+    end
 
-  it 'prefers concrete over partly generic types' do
-    app = Sinatra.new do
-      get '/', :provides => [:png, :html] do
-       content_type
+    context "when HTTP_ACCEPT = image/*, text/html" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/*, text/html'} }
+      it("prefers text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
+    end
+
+    context "when HTTP_ACCEPT = image/png, text/*" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/png, text/*'} }
+      it("prefers image/png"){ expect(response.body).to be == 'image/png' }
+    end
+  end
+
+  context 'prefers concrete over fully generic content-types' do
+    let(:app) do
+      Sinatra.new do
+        get('/', :provides => [:png, :html]){ content_type }
      end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/*, text/html', 'rack.input' => ''
-    expect(response[2]).to be == ['text/html;charset=utf-8']
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/png, text/*', 'rack.input' => ''
-    expect(response[2]).to be == ['image/png']
-
+    context "when HTTP_ACCEPT = */*, text/html" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => '*/*, text/html'} }
+      it("prefers text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
+    end
+    
+    context "when HTTP_ACCEPT = image/png, */*" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/png, */*'} }
+      it("prefers image/png"){ expect(response.body).to be == 'image/png' }
+    end
   end
 
-  it 'prefers concrete over fully generic types' do
-    app = Sinatra.new do
-      get '/', :provides => [:png, :html] do
-       content_type
+  context 'prefers partly generic over fully generic content-types' do
+    let(:app) do
+      Sinatra.new do
+        get('/', :provides => [:png, :html]){ content_type }
      end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => '*/*, text/html', 'rack.input' => ''
-    expect(response[2]).to be == ['text/html;charset=utf-8']
-    
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/png, */*', 'rack.input' => ''
-    expect(response[2]).to be == ['image/png']
-  end
-  
-  it 'prefers partly generic over fully generic types' do
-    app = Sinatra.new do
-      get '/', :provides => [:png, :html] do
-        content_type
-      end
-    end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => '*/*, text/*', 'rack.input' => ''
-    expect(response[2]).to be == ['text/html;charset=utf-8']
-    
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/*, */*', 'rack.input' => ''
-    expect(response[2]).to be == ['image/png']
-  end
-  
-  it 'respects quality with generic types' do
-    app = Sinatra.new do
-      get '/', :provides => [:png, :html] do
-        content_type
-      end
-    end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/*;q=1, text/html;q=0', 'rack.input' => ''
-    expect(response[2]).to be == ['image/png']
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/png;q=0.5, text/*;q=0.7', 'rack.input' => ''
-    expect(response[2]).to be == ['text/html;charset=utf-8']
+    context "when HTTP_ACCEPT = */*, text/*" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => '*/*, text/*'} }
+      it("prefers text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
+    end
+
+    context "when HTTP_ACCEPT = image/*, */*" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/*, */*'} }
+      it("prefers image/png"){ expect(response.body).to be == 'image/png' }
+    end
   end
 
-  it 'supplies a default quality of 1.0' do
-    app = Sinatra.new do
-      get '/', :provides => [:png, :html] do
-        content_type
-      end
+  context 'respects quality with generic content-types' do
+    let(:app) do
+      Sinatra.new do
+        get('/', :provides => [:png, :html]){ content_type }
+     end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/png;q=0.5, text/*', 'rack.input' => ''
-    expect(response[2]).to be == ['text/html;charset=utf-8']
+
+    context "when HTTP_ACCEPT = image/*;q=1, text/html;q=0" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/*;q=1, text/html;q=0'} }
+      it("prefers image/png"){ expect(response.body).to be == 'image/png' }
+    end
+
+    context "when HTTP_ACCEPT = image/png;q=0.5, text/*;q=0.7" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/png;q=0.5, text/*;q=0.7'} }
+      it("prefers text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
+    end
   end
 
-  it 'orders types with equal quality by parameter count' do
-    app = Sinatra.new do
-      get '/', :provides => [:png, :jpg] do
-        content_type
+  context 'supplies the content-types with a default quality of 1.0' do
+    let(:app) do
+      Sinatra.new do
+        get('/', :provides => [:png, :html]){ content_type }
+     end
+    end
+
+    context "when HTTP_ACCEPT = image/png;q=0.5, text/*" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/png;q=0.5, text/*'} }
+      it("prefers text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
+    end
+  end
+
+  context 'orders content-types with equal quality by parameter count' do
+    let(:app) do
+      Sinatra.new do
+        get('/', :provides => [:png, :jpg]){ content_type }
       end
     end
 
@@ -338,17 +377,21 @@ describe 'GET provide conditions' do
     hi_png = 'image/png;q=0.5;profile=FOGRA40;gamma=0.8'
     jpeg = 'image/jpeg;q=0.5;compress=0.25'
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => "#{lo_png}, #{jpeg}", 'rack.input' => ''
-    expect(response[2]).to be == ['image/jpeg']
+    context "when HTTP_ACCEPT = #{lo_png}, #{jpeg}" do
+      let(:response){ get '/', {} , {'HTTP_ACCEPT' => "#{lo_png}, #{jpeg}"} }
+      it("prefers image/jpeg"){ expect(response.body).to be == 'image/jpeg' }
+    end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => "#{hi_png}, #{jpeg}", 'rack.input' => ''
-    expect(response[2]).to be == ['image/png']
+    context "when HTTP_ACCEPT = #{hi_png}, #{jpeg}" do
+      let(:response){ get '/', {} , {'HTTP_ACCEPT' => "#{hi_png}, #{jpeg}"} }
+      it("prefers image/png"){ expect(response.body).to be == 'image/png' }
+    end
   end
 
-  it 'ignores the quality parameter when ordering by parameter count' do
-    app = Sinatra.new do
-      get '/', :provides => [:png, :jpg] do
-        content_type
+  context 'ignores the quality parameter in content-types when ordering by parameter count' do
+    let(:app) do
+      Sinatra.new do
+        get('/', :provides => [:png, :jpg]){ content_type }
       end
     end
 
@@ -356,50 +399,69 @@ describe 'GET provide conditions' do
     hi_png = 'image/png;profile=FOGRA40;gamma=0.8'
     jpeg = 'image/jpeg;q=1.0;compress=0.25'
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => "#{jpeg}, #{lo_png}", 'rack.input' => ''
-    expect(response[2]).to be == ['image/jpeg']
+    context "when HTTP_ACCEPT = #{jpeg}, #{lo_png}" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => "#{jpeg}, #{lo_png}"} }
+      it("prefers image/jpeg"){ expect(response.body).to be == 'image/jpeg' }
+    end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => "#{jpeg}, #{hi_png}", 'rack.input' => ''
-    expect(response[2]).to be == ['image/png']
+    context "when HTTP_ACCEPT = #{jpeg}, #{hi_png}" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => "#{jpeg}, #{hi_png}"} }
+      it("prefers image/png"){ expect(response.body).to be == 'image/png' }
+    end
   end
-
-  it 'poperly handles quoted strings in parameters' do
-    app = Sinatra.new do
-      get '/', :provides => [:png, :jpg] do
-        content_type
+#DOTO: don't get that
+  context 'properly handles quoted strings in parameters' do
+    let(:app) do
+      Sinatra.new do
+        get('/', :provides => [:png, :jpg]){ content_type }
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/png;q=0.5;profile=",image/jpeg,"', 'rack.input' => ''
-    expect(response[2]).to be == ['image/png']
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/png;q=0.5,image/jpeg;q=0;x=";q=1.0"', 'rack.input' => ''
-    expect(response[2]).to be == ['image/png']
+    context "when HTTP_ACCEPT = image/png;q=0.5;profile=',image/jpeg,'" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/png;q=0.5;profile=",image/jpeg,"'} }
+      it("the content_type is image/png"){ expect(response.body).to be == 'image/png' }
+    end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/png;q=0.5,image/jpeg;q=0;x="\";q=1.0"', 'rack.input' => ''
-    expect(response[2]).to be == ['image/png']
+    context "when HTTP_ACCEPT = image/png;q=0.5, image/jpeg;q=0;x=';q=1.0'" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/png;q=0.5, image/jpeg;q=0;x=";q=1.0"'} }
+      it("the content-type is image/png"){ expect(response.body).to be == 'image/png' }
+    end
+
+    context "when HTTP_ACCEPT = image/png;q=0.5, image/jpeg;q=0;x='/\';q=1.0" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/png;q=0.5, image/jpeg;q=0;x="\";q=1.0"'} }
+      it("the content-type is image/png"){ expect(response.body).to be == 'image/png' }
+    end
   end
 
-  it 'accepts both text/javascript and application/javascript for js' do
-    app = Sinatra.new do
-      get '/', :provides => :js do
-        content_type
+  context 'accepts both text/javascript and application/javascript for js' do
+    let(:app) do
+      Sinatra.new do
+        get('/', :provides => :js){ content_type }
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'application/javascript', 'rack.input' => ''
-    expect(response[2]).to be == ['application/javascript;charset=utf-8']
+
+    context "when HTTP_ACCEPT = application/javascript" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'application/javascript'} }
+      it("the content-type is application/javascript"){ expect(response.body).to be == 'application/javascript;charset=utf-8' }
+    end
   end
 
-  it 'accepts both text/xml and application/xml for xml' do
-    app = Sinatra.new do
-      get '/', :provides => :xml do
-        content_type
+  context 'accepts both text/xml and application/xml for xml' do
+    let(:app) do
+      Sinatra.new do
+        get('/', :provides => :xml){ content_type }
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'application/xml', 'rack.input' => ''
-    expect(response[2]).to be == ['application/xml;charset=utf-8']
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'text/xml', 'rack.input' => ''
-    expect(response[2]).to be == ['text/xml;charset=utf-8']
+    context "when HTTP_ACCEPT = application/xml" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'application/xml'} }
+      it("the content-type is application/xml"){ expect(response.body).to be == 'application/xml;charset=utf-8' }
+    end
+
+    context "when HTTP_ACCEPT = text/xml" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'text/xml'} }
+      it("the content-type is text/xml"){ expect(response.body).to be == 'text/xml;charset=utf-8' }
+    end
   end
 
 end

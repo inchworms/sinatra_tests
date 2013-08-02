@@ -2,6 +2,8 @@ GEM
   remote: https://rubygems.org/
   specs:
     diff-lcs (1.2.4)
+    emoji-rspec (1.0.0)
+      rspec (~> 2.10)
     rack (1.5.2)
     rack-protection (1.5.0)
       rack
@@ -25,6 +27,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  emoji-rspec
   rack-test
   rspec
   sinatra
