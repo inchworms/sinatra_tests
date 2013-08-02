@@ -433,14 +433,17 @@ describe 'GET provide conditions' do
     end
   end
 
-  it 'accepts both text/javascript and application/javascript for js' do
-    app = Sinatra.new do
-      get '/', :provides => :js do
-        content_type
+  context 'accepts both text/javascript and application/javascript for js' do
+    let(:app) do
+      Sinatra.new do
+        get('/', :provides => :js){ content_type }
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'application/javascript', 'rack.input' => ''
-    expect(response[2]).to be == ['application/javascript;charset=utf-8']
+
+    context "when HTTP_ACCEPT = application/javascript" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'application/javascript'} }
+      it("the content-type is application/javascript"){ expect(response.body).to be == 'application/javascript;charset=utf-8' }
+    end
   end
 
   it 'accepts both text/xml and application/xml for xml' do
