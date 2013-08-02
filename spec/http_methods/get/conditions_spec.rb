@@ -3,24 +3,27 @@
 require 'spec_helper'
 
 describe "GET conditions" do
-  it "passes to next route when condition calls pass explicitly" do
-    app = Sinatra.new do
-      condition do
-        pass unless
-          params[:foo] == 'bar'
+  context "passes to next correct route when condition calls pass explicitly" do
+    let(:app) do
+      Sinatra.new do
+        condition do
+          pass unless params[:foo] == 'bar'
         end
-      get '/:foo' do
-        [ 201, {}, 'Hello World']
+        get('/:foo'){ 'Hello World' }
       end
     end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar', 'rack.input' => ''
-    expect(response[0]).to be == 201
-    expect(response[2]).to be == ['Hello World']
+    context "get '/bar'" do
+      let(:response){ get '/bar' }
+      it("status 200"){ expect(response.status).to be == 200 }
+      it("body Hello World"){ expect(response.body).to be == 'Hello World'}
+    end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'rack.input' => ''
-     expect(response[0]).to be == 404
-   end
+    context "get '/foo'" do
+      let(:response){ get '/foo' }
+      it("status 404"){ expect(response.status).to be == 404}
+    end
+  end
 
   it "passes when matching condition returns false" do
     app = Sinatra.new do
