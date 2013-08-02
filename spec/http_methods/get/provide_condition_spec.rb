@@ -344,12 +344,12 @@ describe 'GET provide conditions' do
 
     context "when HTTP_ACCEPT = image/*;q=1, text/html;q=0" do
       let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/*;q=1, text/html;q=0'} }
-      it("prefers image/png"){ expect(response.body).to be == 'image/png' }
+      it("it prefers image/png"){ expect(response.body).to be == 'image/png' }
     end
 
     context "when HTTP_ACCEPT = image/png;q=0.5, text/*;q=0.7" do
       let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/png;q=0.5, text/*;q=0.7'} }
-      it("prefers text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
+      it("it prefers text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
     end
   end
 
@@ -362,7 +362,7 @@ describe 'GET provide conditions' do
 
     context "when HTTP_ACCEPT = image/png;q=0.5, text/*" do
       let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/png;q=0.5, text/*'} }
-      it("prefers text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
+      it("it prefers text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
     end
   end
 
@@ -379,19 +379,19 @@ describe 'GET provide conditions' do
 
     context "when HTTP_ACCEPT = #{lo_png}, #{jpeg}" do
       let(:response){ get '/', {} , {'HTTP_ACCEPT' => "#{lo_png}, #{jpeg}"} }
-      it("prefers image/jpeg"){ expect(response.body).to be == 'image/jpeg' }
+      it("it prefers image/jpeg"){ expect(response.body).to be == 'image/jpeg' }
     end
 
     context "when HTTP_ACCEPT = #{hi_png}, #{jpeg}" do
       let(:response){ get '/', {} , {'HTTP_ACCEPT' => "#{hi_png}, #{jpeg}"} }
-      it("prefers image/png"){ expect(response.body).to be == 'image/png' }
+      it("it prefers image/png"){ expect(response.body).to be == 'image/png' }
     end
   end
 
-  it 'ignores the quality parameter when ordering by parameter count' do
-    app = Sinatra.new do
-      get '/', :provides => [:png, :jpg] do
-        content_type
+  context 'ignores the quality parameter in content-types when ordering by parameter count' do
+    let(:app) do
+      Sinatra.new do
+        get('/', :provides => [:png, :jpg]){ content_type }
       end
     end
 
@@ -399,11 +399,15 @@ describe 'GET provide conditions' do
     hi_png = 'image/png;profile=FOGRA40;gamma=0.8'
     jpeg = 'image/jpeg;q=1.0;compress=0.25'
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => "#{jpeg}, #{lo_png}", 'rack.input' => ''
-    expect(response[2]).to be == ['image/jpeg']
+    context "when HTTP_ACCEPT = #{jpeg}, #{lo_png}" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => "#{jpeg}, #{lo_png}"} }
+      it("it prefers image/jpeg"){ expect(response.body).to be == 'image/jpeg' }
+    end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => "#{jpeg}, #{hi_png}", 'rack.input' => ''
-    expect(response[2]).to be == ['image/png']
+    context "when HTTP_ACCEPT = #{jpeg}, #{hi_png}" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => "#{jpeg}, #{hi_png}"} }
+      it("it prefers image/png"){ expect(response.body).to be == 'image/png' }
+    end
   end
 
   it 'poperly handles quoted strings in parameters' do
