@@ -446,17 +446,22 @@ describe 'GET provide conditions' do
     end
   end
 
-  it 'accepts both text/xml and application/xml for xml' do
-    app = Sinatra.new do
-      get '/', :provides => :xml do
-        content_type
+  context 'accepts both text/xml and application/xml for xml' do
+    let(:app) do
+      Sinatra.new do
+        get('/', :provides => :xml){ content_type }
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'application/xml', 'rack.input' => ''
-    expect(response[2]).to be == ['application/xml;charset=utf-8']
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'text/xml', 'rack.input' => ''
-    expect(response[2]).to be == ['text/xml;charset=utf-8']
+    context "when HTTP_ACCEPT = application/xml" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'application/xml'} }
+      it("the content-type is application/xml"){ expect(response.body).to be == 'application/xml;charset=utf-8' }
+    end
+
+    context "when HTTP_ACCEPT = text/xml" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'text/xml'} }
+      it("the content-type is text/xml"){ expect(response.body).to be == 'text/xml;charset=utf-8' }
+    end
   end
 
 end
