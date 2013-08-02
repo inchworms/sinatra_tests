@@ -192,7 +192,7 @@ describe 'GET provide conditions' do
 
   end
 
-  context 'filters by current Content-Type' do
+  context 'filters by current content-type' do
     let(:app) do
       Sinatra.new do
         before('/txt') { content_type :txt }
@@ -222,7 +222,7 @@ describe 'GET provide conditions' do
     end
   end
 
-  context 'multiple mime-types for accept header' do
+  context 'multiple content-types for accept header' do
     types = ['image/jpeg', 'image/pjpeg']
     let(:app) do
       Sinatra.new do
@@ -231,7 +231,7 @@ describe 'GET provide conditions' do
     end
 
     types.each do |type|
-      context "allows #{type} as mime-type" do
+      context "allows #{type} as content-type" do
         let(:response){ get '/', {}, {'HTTP_ACCEPT' => type} }
         it("returns correct content_type"){ expect(response.header['Content-Type']).to be == type }
         it("returns correct body"){ expect(response.body).to be == type }
@@ -239,7 +239,7 @@ describe 'GET provide conditions' do
     end
   end
 
-  context 'respects user agent preferences for the content type' do
+  context 'respects user agent preferences for the content-type' do
     let(:app) do
       Sinatra.new do
         get('/', :provides => [:png, :html]){ content_type }
@@ -257,7 +257,7 @@ describe 'GET provide conditions' do
     end
   end
 #TODO: Don't understand why sinatra is doing it
-  context 'accepts generic content types' do
+  context 'accepts generic content-types' do
     let(:app) do
       Sinatra.new do
         get('/', :provides => :xml){ content_type }
@@ -281,7 +281,7 @@ describe 'GET provide conditions' do
     end
   end
 
-  context 'prefers concrete over partly generic content types' do
+  context 'prefers concrete over partly generic content-types' do
     let(:app) do
       Sinatra.new do
         get('/', :provides => [:png, :html]){ content_type }
@@ -299,7 +299,7 @@ describe 'GET provide conditions' do
     end
   end
 
-  context 'prefers concrete over fully generic content types' do
+  context 'prefers concrete over fully generic content-types' do
     let(:app) do
       Sinatra.new do
         get('/', :provides => [:png, :html]){ content_type }
@@ -317,7 +317,7 @@ describe 'GET provide conditions' do
     end
   end
 
-  context 'prefers partly generic over fully generic content types' do
+  context 'prefers partly generic over fully generic content-types' do
     let(:app) do
       Sinatra.new do
         get('/', :provides => [:png, :html]){ content_type }
@@ -335,7 +335,7 @@ describe 'GET provide conditions' do
     end
   end
 
-  context 'respects quality with generic content types' do
+  context 'respects quality with generic content-types' do
     let(:app) do
       Sinatra.new do
         get('/', :provides => [:png, :html]){ content_type }
@@ -353,7 +353,7 @@ describe 'GET provide conditions' do
     end
   end
 
-  context 'supplies a default quality of 1.0' do
+  context 'supplies the content-types with a default quality of 1.0' do
     let(:app) do
       Sinatra.new do
         get('/', :provides => [:png, :html]){ content_type }
@@ -366,10 +366,10 @@ describe 'GET provide conditions' do
     end
   end
 
-  it 'orders types with equal quality by parameter count' do
-    app = Sinatra.new do
-      get '/', :provides => [:png, :jpg] do
-        content_type
+  context 'orders content-types with equal quality by parameter count' do
+    let(:app) do
+      Sinatra.new do
+        get('/', :provides => [:png, :jpg]){ content_type }
       end
     end
 
@@ -377,11 +377,15 @@ describe 'GET provide conditions' do
     hi_png = 'image/png;q=0.5;profile=FOGRA40;gamma=0.8'
     jpeg = 'image/jpeg;q=0.5;compress=0.25'
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => "#{lo_png}, #{jpeg}", 'rack.input' => ''
-    expect(response[2]).to be == ['image/jpeg']
+    context "when HTTP_ACCEPT = #{lo_png}, #{jpeg}" do
+      let(:response){ get '/', {} , {'HTTP_ACCEPT' => "#{lo_png}, #{jpeg}"} }
+      it("prefers image/jpeg"){ expect(response.body).to be == 'image/jpeg' }
+    end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => "#{hi_png}, #{jpeg}", 'rack.input' => ''
-    expect(response[2]).to be == ['image/png']
+    context "when HTTP_ACCEPT = #{hi_png}, #{jpeg}" do
+      let(:response){ get '/', {} , {'HTTP_ACCEPT' => "#{hi_png}, #{jpeg}"} }
+      it("prefers image/png"){ expect(response.body).to be == 'image/png' }
+    end
   end
 
   it 'ignores the quality parameter when ordering by parameter count' do
