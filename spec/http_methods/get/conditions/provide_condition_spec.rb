@@ -5,117 +5,117 @@ require 'spec_helper'
 describe 'GET provide conditions' do
 # mime-types or content-types two-part identifier for file formats on the Internet
 # a type, a subtype, and zero or more optional parameters
-  %w(
-  application/atom+xml
-  application/ecmascript
-  application/EDI-X12
-  application/EDIFACT
-  application/json
-  application/javascript
-  application/octet-stream
-  application/ogg
-  application/pdf
-  application/postscript
-  application/rdf+xml
-  application/rss+xml
-  application/soap+xml
-  application/font-woff
-  application/xhtml+xml
-  application/xml
-  application/xml-dtd
-  application/xop+xml
-  application/zip
-  application/gzip
-  audio/basic
-  audio/L24
-  audio/mp4
-  audio/mpeg
-  audio/ogg
-  audio/vorbis
-  audio/vnd.rn-realaudio
-  audio/vnd.wave
-  audio/webm
-  image/gif
-  image/jpeg
-  image/pjpeg
-  image/png
-  image/svg+xml
-  image/tiff
-  image/vnd.microsoft.icon
-  message/http
-  message/imdn+xml
-  message/partial
-  message/rfc822
-  model/example
-  model/iges
-  model/mesh
-  model/vrml
-  model/x3d+binary
-  model/x3d+vrml
-  model/x3d+xml
-  multipart/mixed
-  multipart/alternative
-  multipart/related
-  multipart/form-data
-  multipart/signed
-  multipart/encrypted
-  text/cmd
-  text/css
-  text/csv
-  text/html
-  text/javascript
-  application/javascript
-  text/plain
-  text/vcard
-  text/xml
-  video/mpeg
-  video/mp4
-  video/ogg
-  video/quicktime
-  video/webm
-  video/x-matroska
-  video/x-ms-wmv
-  video/x-flv
-  application/vnd.oasis.opendocument.text
-  application/vnd.oasis.opendocument.spreadsheet
-  application/vnd.oasis.opendocument.presentation
-  application/vnd.oasis.opendocument.graphics
-  application/vnd.ms-excel
-  application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-  application/vnd.ms-powerpoint
-  application/vnd.openxmlformats-officedocument.presentationml.presentation
-  application/vnd.openxmlformats-officedocument.wordprocessingml.document
-  application/vnd.mozilla.xul+xml
-  application/vnd.google-earth.kml+xml
-  application/x-deb
-  application/x-dvi
-  application/x-font-ttf
-  application/x-javascript
-  application/x-latex
-  application/x-mpegURL
-  application/x-rar-compressed
-  application/x-shockwave-flash
-  application/x-stuffit
-  application/x-tar
-  application/x-www-form-urlencoded
-  application/x-xpinstall
-  audio/x-aac
-  audio/x-caf
-  image/x-xcf
-  text/x-gwt-rpc
-  text/x-jquery-tmpl
-  application/x-pkcs12
-  application/x-pkcs12
-  application/x-pkcs7-certificates
-  application/x-pkcs7-certificates
-  application/x-pkcs7-certreqresp
-  application/x-pkcs7-mime
-  application/x-pkcs7-mime
-  application/x-pkcs7-signature
-  ).each do |mime_type|
-    it "matches the MIME type #{mime_type}" do
-      expect(mime_type).to match(Sinatra::Request::HEADER_VALUE_WITH_PARAMS)
-    end
+  it 'matches mime_types with dots, hyphens and plus signs' do
+    mime_types = %w(
+      application/atom+xml
+      application/ecmascript
+      application/EDI-X12
+      application/EDIFACT
+      application/json
+      application/javascript
+      application/octet-stream
+      application/ogg
+      application/pdf
+      application/postscript
+      application/rdf+xml
+      application/rss+xml
+      application/soap+xml
+      application/font-woff
+      application/xhtml+xml
+      application/xml
+      application/xml-dtd
+      application/xop+xml
+      application/zip
+      application/gzip
+      audio/basic
+      audio/L24
+      audio/mp4
+      audio/mpeg
+      audio/ogg
+      audio/vorbis
+      audio/vnd.rn-realaudio
+      audio/vnd.wave
+      audio/webm
+      image/gif
+      image/jpeg
+      image/pjpeg
+      image/png
+      image/svg+xml
+      image/tiff
+      image/vnd.microsoft.icon
+      message/http
+      message/imdn+xml
+      message/partial
+      message/rfc822
+      model/example
+      model/iges
+      model/mesh
+      model/vrml
+      model/x3d+binary
+      model/x3d+vrml
+      model/x3d+xml
+      multipart/mixed
+      multipart/alternative
+      multipart/related
+      multipart/form-data
+      multipart/signed
+      multipart/encrypted
+      text/cmd
+      text/css
+      text/csv
+      text/html
+      text/javascript
+      application/javascript
+      text/plain
+      text/vcard
+      text/xml
+      video/mpeg
+      video/mp4
+      video/ogg
+      video/quicktime
+      video/webm
+      video/x-matroska
+      video/x-ms-wmv
+      video/x-flv
+      application/vnd.oasis.opendocument.text
+      application/vnd.oasis.opendocument.spreadsheet
+      application/vnd.oasis.opendocument.presentation
+      application/vnd.oasis.opendocument.graphics
+      application/vnd.ms-excel
+      application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+      application/vnd.ms-powerpoint
+      application/vnd.openxmlformats-officedocument.presentationml.presentation
+      application/vnd.openxmlformats-officedocument.wordprocessingml.document
+      application/vnd.mozilla.xul+xml
+      application/vnd.google-earth.kml+xml
+      application/x-deb
+      application/x-dvi
+      application/x-font-ttf
+      application/x-javascript
+      application/x-latex
+      application/x-mpegURL
+      application/x-rar-compressed
+      application/x-shockwave-flash
+      application/x-stuffit
+      application/x-tar
+      application/x-www-form-urlencoded
+      application/x-xpinstall
+      audio/x-aac
+      audio/x-caf
+      image/x-xcf
+      text/x-gwt-rpc
+      text/x-jquery-tmpl
+      application/x-pkcs12
+      application/x-pkcs12
+      application/x-pkcs7-certificates
+      application/x-pkcs7-certificates
+      application/x-pkcs7-certreqresp
+      application/x-pkcs7-mime
+      application/x-pkcs7-mime
+      application/x-pkcs7-signature
+      )
+    #iterate through the above array to majke a seperate test for each
+    mime_types.each { |mime_type| expect(mime_type).to match(Sinatra::Request::HEADER_VALUE_WITH_PARAMS) }
   end
 
   context 'filters by accept header' do
@@ -203,7 +203,7 @@ describe 'GET provide conditions' do
     end
 
     context "with '/' and HTTP_ACCEPT' => '*/*'" do
-      let(:response){ get '/', {}, {'HTTP_ACCEPT' =>  '*/*'} }
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => '*/*'} }
       it("returns correct Content-Type"){ expect(response.header['Content-Type']).to be == 'text/plain;charset=utf-8' }
       it("returns correct body"){ expect(response.body).to be == 'txt' }
     end
