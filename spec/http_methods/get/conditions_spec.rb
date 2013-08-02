@@ -28,7 +28,7 @@ describe "GET conditions" do
   context "passes when matching condition returns false" do
     let(:app) do
       Sinatra.new do
-        condition do 
+        condition do
           params[:foo] == 'bar'
         end
         get('/:foo'){ 'Hello World'}
@@ -47,19 +47,21 @@ describe "GET conditions" do
     end
   end
 
-  it "does not pass when matching condition returns nil" do
-    app = Sinatra.new do
-      condition do
-        nil
-      end
-      get '/:foo' do
-        [201, {}, 'Hello World']
+  context "does not pass when matching condition returns nil" do
+    let(:app) do
+      Sinatra.new do
+        condition do
+          nil
+        end
+        get('/:foo'){ 'Hello World'}
       end
     end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar', 'rack.input' => ''
-    expect(response[0]).to be == 201
-    expect(response[2]).to be == ['Hello World']
+    context "get /bar" do
+      let(:response){ get '/bar' }
+      it("returns 200"){ expect(response.status).to be == 200 }
+      it("returns correct body"){ expect(response.body).to be == 'Hello World' }
+    end
   end
 
   it 'allows custom route-conditions to be set via route options' do
