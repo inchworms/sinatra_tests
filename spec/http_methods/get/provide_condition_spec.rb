@@ -266,34 +266,37 @@ describe 'GET provide conditions' do
     end
 
     context "'HTTP_ACCEPT' => 'foo/*'" do
-      let(:response){get '/', {}, {'HTTP_ACCEPT' => 'foo/*'} }
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'foo/*'} }
       it("does not find a match"){ expect(response.body).to be == 'no match' }
     end
 
     context "'HTTP_ACCEPT' => 'application/*'" do
-      let(:response){get '/', {}, {'HTTP_ACCEPT' => 'application/*'} }
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'application/*'} }
       it("find the correct content_type"){ expect(response.body).to be == 'application/xml;charset=utf-8' }
     end
 
     context "'HTTP_ACCEPT' => '*/*'" do
-      let(:response){get '/', {}, {'HTTP_ACCEPT' => '*/*'} }
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => '*/*'} }
       it("find the correct content_type"){ expect(response.body).to be == 'application/xml;charset=utf-8' }
     end
   end
 
-
-  it 'prefers concrete over partly generic types' do
-    app = Sinatra.new do
-      get '/', :provides => [:png, :html] do
-       content_type
+  context 'prefers concrete over partly generic types' do
+    let(:app) do
+      Sinatra.new do
+        get('/', :provides => [:png, :html]){ content_type }
      end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/*, text/html', 'rack.input' => ''
-    expect(response[2]).to be == ['text/html;charset=utf-8']
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/png, text/*', 'rack.input' => ''
-    expect(response[2]).to be == ['image/png']
+    context "image/*, text/html" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/*, text/html'} }
+      it("prefers text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
+    end
 
+    context "image/png, text/*" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/png, text/*'} }
+      it("prefers image/png"){ expect(response.body).to be == 'image/png' }
+    end
   end
 
   it 'prefers concrete over fully generic types' do
