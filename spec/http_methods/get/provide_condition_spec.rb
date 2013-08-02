@@ -257,7 +257,7 @@ describe 'GET provide conditions' do
     end
   end
 #TODO: Don't understand why sinatra is doing it
-  context 'accepts generic types' do
+  context 'accepts generic content types' do
     let(:app) do
       Sinatra.new do
         get('/', :provides => :xml){ content_type }
@@ -281,7 +281,7 @@ describe 'GET provide conditions' do
     end
   end
 
-  context 'prefers concrete over partly generic types' do
+  context 'prefers concrete over partly generic content types' do
     let(:app) do
       Sinatra.new do
         get('/', :provides => [:png, :html]){ content_type }
@@ -299,7 +299,7 @@ describe 'GET provide conditions' do
     end
   end
 
-  context 'prefers concrete over fully generic types' do
+  context 'prefers concrete over fully generic content types' do
     let(:app) do
       Sinatra.new do
         get('/', :provides => [:png, :html]){ content_type }
@@ -317,7 +317,7 @@ describe 'GET provide conditions' do
     end
   end
 
-  context 'prefers partly generic over fully generic types' do
+  context 'prefers partly generic over fully generic content types' do
     let(:app) do
       Sinatra.new do
         get('/', :provides => [:png, :html]){ content_type }
@@ -335,17 +335,22 @@ describe 'GET provide conditions' do
     end
   end
 
-  it 'respects quality with generic types' do
-    app = Sinatra.new do
-      get '/', :provides => [:png, :html] do
-        content_type
-      end
+  context 'respects quality with generic content types' do
+    let(:app) do
+      Sinatra.new do
+        get('/', :provides => [:png, :html]){ content_type }
+     end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/*;q=1, text/html;q=0', 'rack.input' => ''
-    expect(response[2]).to be == ['image/png']
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'HTTP_ACCEPT' => 'image/png;q=0.5, text/*;q=0.7', 'rack.input' => ''
-    expect(response[2]).to be == ['text/html;charset=utf-8']
+    context "when HTTP_ACCEPT = image/*;q=1, text/html;q=0" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/*;q=1, text/html;q=0'} }
+      it("prefers image/png"){ expect(response.body).to be == 'image/png' }
+    end
+
+    context "when HTTP_ACCEPT = image/png;q=0.5, text/*;q=0.7" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/png;q=0.5, text/*;q=0.7'} }
+      it("prefers text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
+    end
   end
 
   it 'supplies a default quality of 1.0' do
