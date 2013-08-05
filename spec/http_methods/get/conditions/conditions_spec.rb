@@ -63,37 +63,41 @@ describe "GET conditions" do
    it("returns expected body"){ expect(response.body).to be == 'Hello World' }
   end
 
-#   context 'allows custom route-conditions to be set via route options' do
-#     protector = Module.new do
-#       def protect(*args)
-#         condition do
-#           unless authorize(params["user"], params["password"])
-#             halt 403, "go away"
-#           end
-#         end
-#       end
-#     end
+  context 'allows custom route-conditions to be set via route options' do
+    protector = Module.new do
+      def protect(*args)
+        condition do
+          unless authorize(params["user"], params["password"])
+            halt 403, "not authorized"
+          end
+        end
+      end
+    end
 
-#     app = Sinatra.new do
-#       register protector
+    let(:app) do
+      Sinatra.new do
+        register protector
 
-#       helpers do
-#        def authorize(username, password)
-#          username == "foo" && password == "bar"
-#        end
-#       end
+        helpers do
+          def authorize(username, password)
+            username == "foo" && password == "bar"
+          end
+        end
+        get("/", :protect => true){ 'authorized' }
+      end
+    end
 
-#       get "/", :protect => true do
-#         "hey"
-#       end
-#     end
+    context "get / without user and password" do
+      let(:response){ get '/' }
+      it(""){ expect(response.status).to be == 403 }
+      it(""){ expect(response.body).to be == "not authorized" }
+    end
 
-#     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'rack.input' => ''
-#     expect(response[0]).to be == 403
-#    expect(response[2]).to be == ["go away"]
+    context "get / with username and password" do
+      let(:response){ get '/', {}, {'QUERY_STRING' => 'user=foo&password=bar'} }
+      it(""){ expect(response.status).to be == 200 }
+      it(""){ expect(response.body).to be == 'authorized' }
+    end
+  end
 
-#    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'QUERY_STRING' => 'user=foo&password=bar', 'rack.input' => ''
-#    expect(response[0]).to be == 200
-#    expect(response[2]).to be == ["hey"]
-#   end
 end
