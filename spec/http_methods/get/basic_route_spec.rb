@@ -9,20 +9,17 @@ describe "GET basic '/' route" do
     end
   end
   let(:response){ get '/' }
-  # does the same as:
-  # let(:response) { @app.call 'REQUEST_METHOD' => 'GET', 'rack.input' => '' }
+  it("returns 201 as a status"){ expect(response.status).to be == 201 }
+  it("sets a header as foo"){ expect(response.header['Header']).to be == 'foo' }
+  it("returns the complete body as string"){ expect(response.body).to be == 'abc' }
 
-  it("returns 201 as a status") { expect(response.status).to be == 201 }
-  it("returns the complete body as string") { expect(response.body).to be == 'abc' }
-  it("sets a header as foo") { expect(response.header['Header']).to be == 'foo' }
-
-  it "/hello routes gets hello route" do
-    app = Sinatra.new do
-      get '/hello' do
-        [ 201, {}, '' ]
+  context "/hello routes" do
+    let(:app) do
+      Sinatra.new do
+        get('/hello'){ 'works' }
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/hello', 'rack.input' => ''
-    expect(response[0]).to be == 201
+    let(:response){ get'/hello' }
+    it("gets hello route"){ expect(response.body).to be == "works" }
   end
 end
