@@ -10,7 +10,7 @@ describe "GET basic '/' route" do
   end
   let(:response){ get '/' }
   it("returns 201 as a status"){ expect(response.status).to be == 201 }
-  it("sets a header as foo"){ expect(response.header['Header']).to be == 'foo' }
+  it("sets the header as foo"){ expect(response.header['Header']).to be == 'foo' }
   it("returns the complete body as string"){ expect(response.body).to be == 'abc' }
 
   context "/hello routes" do
