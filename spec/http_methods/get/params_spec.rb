@@ -3,27 +3,32 @@
 require 'spec_helper'
 
 describe "GET params" do
-
-  it "supports params like /hello/:name" do
-    app = Sinatra.new do
-      get '/Hello/:name' do
-        [ 201, {}, ["Hello #{params[:name]}!"] ]
+  context "supports params" do
+    let(:app) do
+      Sinatra.new do
+        get('/Hello/:name'){ "Hello #{params[:name]}!" }
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/Hello/Horst', 'rack.input' => ''
-    expect(response[2]).to be == ["Hello Horst!"]
+    it "supports params like /hello/:name" do
+      response = get '/Hello/Horst'
+      expect(response.body).to be == "Hello Horst!"
+    end
   end
-
-  it "exposes params with indifferent hash" do
-    app = Sinatra.new do
-      get '/:foo' do
-        bar = params['foo']
-        bar = params[:foo]
-        [ 201, {}, 'ok' ]
+#TODO: some explanation!
+  context "exposes params" do
+    let(:app) do
+      Sinatra.new do
+        get '/:foo' do
+          bar = params['foo']
+          bar = params[:foo]
+          [ 201, {}, bar ]
+        end
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar', 'rack.input' => ''
-    expect(response[2]).to be == ['ok']
+    it "with indifferent hash" do
+      response = get '/bar'
+      expect(response.body).to be == "works"
+    end
   end
 
   it "merges named params and query string params in params" do
