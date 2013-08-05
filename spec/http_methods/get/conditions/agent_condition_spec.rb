@@ -24,18 +24,19 @@ describe 'GET agent conditions' do
     end
   end
 
+  context 'treats missing user agent like an empty string' do
+    let(:app) do
+      Sinatra.new do
+        user_agent(/.*/)
+        get('/'){ "Hello World" }
+      end
+    end
 
-  it 'treats missing user agent like an empty string' do
-   app = Sinatra.new do
-     user_agent(/.*/)
-     get '/' do
-      [201, {},"Hello World"]
-     end
-   end
-
-   response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'rack.input' => ''
-   expect(response[0]).to be == 201
-   expect(response[2]).to be == ["Hello World"]
+    context "get /" do
+      let(:response){ get '/' }
+      it("returns correct status"){ expect(response.status).to be == 200 }
+      it("returns correct body"){ expect(response.body).to be == "Hello World" }
+    end
   end
 
   it 'makes captures in user agent pattern available in params[:agent]' do
