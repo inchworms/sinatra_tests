@@ -5,10 +5,10 @@ require 'spec_helper'
 describe "GET basic '/' route" do
   let(:app) do
     Sinatra.new do
-      get('/') { [201, { 'Header' => 'foo' }, ["a", "b", "c"]] }
+      get('/'){ [201, { 'Header' => 'foo' }, ["a", "b", "c"]] }
     end
   end
-  let(:response) { get '/' }
+  let(:response){ get '/' }
   # does the same as:
   # let(:response) { @app.call 'REQUEST_METHOD' => 'GET', 'rack.input' => '' }
 
