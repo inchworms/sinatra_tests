@@ -39,17 +39,19 @@ describe 'GET agent conditions' do
     end
   end
 
-  it 'makes captures in user agent pattern available in params[:agent]' do
-   app = Sinatra.new do
-     user_agent(/Foo (.*)/)
-     get '/foo' do
-      'Hello ' + params[:agent].first
+  context 'makes captures in user agent pattern available in params[:agent]' do
+    let(:app) do
+      Sinatra.new do
+        user_agent(/Foo (.*)/)
+        get('/foo'){'Hello ' + params[:agent].first}
      end
    end
 
-   response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'HTTP_USER_AGENT' => 'Foo Bar', 'rack.input' => ''
-   expect(response[0]).to be == 200
-   expect(response[2]).to be == ["Hello Bar"]
+   context "get /foo & HTTP_USER_AGENT = Foo Bar" do
+     let(:response){ get '/foo', {}, {'HTTP_USER_AGENT' => 'Foo Bar'} }
+     it("returns correct status"){ expect(response.status).to be == 200 }
+     it("returns correct body"){ expect(response.body).to be == "Hello Bar" }
+   end
   end
 
   it 'adds hostname condition when it is in options' do
