@@ -2,14 +2,14 @@
 
 require 'spec_helper'
 
-describe " GET body responses" do
-  it "returns empty array when body is nil" do
-    app = Sinatra.new do
-      get '/' do
-        [ 201, {}, nil ]
-      end
+describe "GET body responses" do
+  let(:app) do
+    Sinatra.new do
+      get('/'){[ 201, {}, nil ]}
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'rack.input' => ''
-    expect(response[2]).to be == []
+  end
+  it "returns empty string when body is nil" do
+    response = get '/'
+    expect(response.body).to be == ""
   end
 end
