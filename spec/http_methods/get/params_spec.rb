@@ -27,7 +27,7 @@ describe "GET params" do
     end
     it "with indifferent hash" do
       response = get '/bar'
-      expect(response.body).to be == "works"
+      expect(response.body).to be == bar
     end
   end
 
