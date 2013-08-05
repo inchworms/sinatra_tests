@@ -12,12 +12,12 @@ describe "GET host_condition" do
       end
     end
 
-    context "/foo" do
+    context "get /foo" do
       let(:response){ get '/foo' }
       it("returns status"){ expect(response.status).to be == 404 }
     end
 
-    context "/foo HTTP_HOST = example.com" do
+    context "get /foo & HTTP_HOST = example.com" do
       let(:response){ get '/foo', {}, {'HTTP_HOST' => 'example.com'} }
       it("returns correct body"){ expect(response.body).to be == "Hello World" }
     end
