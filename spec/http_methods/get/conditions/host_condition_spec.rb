@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe "GET host_condition" do
-
+# TODO: same as 'adds hostname condition when it is in options' test in agent_condition_spec.rb line 57?
   context "passes to the next route when host_name does not match" do
     let(:app) do
       Sinatra.new do

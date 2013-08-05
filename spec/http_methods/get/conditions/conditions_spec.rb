@@ -2,7 +2,6 @@
 
 require 'spec_helper'
 
-
 describe "GET conditions" do
   context "passes to next route when condition calls pass explicitly" do
     let(:app) do
