@@ -2,22 +2,26 @@
 
 require 'spec_helper'
 
-describe "GET host_condition" do 
+describe "GET host_condition" do
 
-	it "passes to the next route when host_name does not match" do
-		app = Sinatra.new do
-			host_name 'example.com'
-      get '/foo' do 
-        [ 201, {}, 'Hello World']
+  context "passes to the next route when host_name does not match" do
+    let(:app) do
+      Sinatra.new do
+        host_name 'example.com'
+        get('/foo'){ 'Hello World' }
       end
     end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'rack.input' => ''
-    expect(response[0]).to be == 404
+    context "/foo" do
+      let(:response){ get '/foo' }
+      it("returns status"){ expect(response.status).to be == 404 }
+    end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'HTTP_HOST' => 'example.com', 'rack.input' => ''
-    expect(response[0]).to be == 201
-    expect(response[2]).to be == ["Hello World"]
+    context "/foo HTTP_HOST = example.com" do
+      let(:response){ get '/foo', {}, {'HTTP_HOST' => 'example.com'} }
+      it("returns correct status"){ expect(response.status).to be == 201 }
+      it("returns correct body"){ expect(response.body).to be == "Hello World" }
+    end
   end
 end
 
