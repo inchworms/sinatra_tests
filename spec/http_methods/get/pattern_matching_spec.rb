@@ -152,35 +152,38 @@ describe "GET pattern matching" do
     end
   end
 
-  it "supports mixing named and splat params like /:foo/*" do
-    app = Sinatra.new do
-      get '/:foo/*' do
-        [ 201, {}, "" ]
+  context "supports mixing named and splat params like /:foo/*" do
+    let(:app) do
+      Sinatra.new do
+        get('/:foo/*'){ 'working' }
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo/bar/baz', 'rack.input' => ''
-    expect(response[0]).to be == 201
+    it "handles request: /foo/bar/baz with route: /:foo/*" do
+      response = get '/foo/bar/baz'
+      expect(response.body).to be == 'working'
+    end
   end
 
   context "nested params" do
     let(:app) do
       Sinatra.new do
-        get ('/hello') { [201, {}, "#{params["person"]["name"]}"] }
+        get ('/hello'){ "#{params["person"]["name"]}" }
       end
     end
     let(:response){ get '/hello?person[name]=John+Doe' }
     it("supports basic nested params") { expect(response.body).to be == "John Doe" }
   end
 
-  it "URL decodes named parameters and splats" do
-    app = Sinatra.new do
-      get '/:foo/*' do
-        [ 201, {}, "#{params[:foo]};#{params[:splat]}" ]
+  context "URL decodes named parameters and splats" do
+    let(:app) do
+      Sinatra.new do
+      get('/:foo/*'){ "#{params[:foo]};#{params[:splat]}" }
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/hello%20world/how%20are%20you', 'rack.input' => ''
-    expect(response[0]).to be == 201
-    expect(response[2]).to be == ["hello world;[\"how are you\"]"]
+    it "handles request: /hello%20world/how%20are%20you with route: /:foo/*" do
+      response = get '/hello%20world/how%20are%20you'
+      expect(response.body).to be == "hello world;[\"how are you\"]"
+    end
   end
 
   it 'supports regular expressions' do
