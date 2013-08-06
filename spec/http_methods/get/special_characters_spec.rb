@@ -33,12 +33,12 @@ describe "GET special characters" do
   context "literally matches dot in paths" do
     let(:app) do
       Sinatra.new do
-        get('/test.bar'){}
+        get('/test.bar'){'working'}
       end
     end
     it "handles request: /test.bar with route: /test.bar" do
       response = get '/test.bar'
-      expect(response.status).to be == 200
+      expect(response.body).to be == 'working'
     end
 
     it "does not handle request: /test0bar with route: /test.bar" do
@@ -50,31 +50,41 @@ describe "GET special characters" do
   context "literally matches dollar sign in paths" do
     let(:app) do
       Sinatra.new do
-        get('/foo$'){}
+        get('/foo$'){'working'}
       end
     end
     it "handles request: /foo$ with route: /foo$" do
       response = get '/foo$'
-      expect(response.status).to be == 200
+      expect(response.body).to be == 'working'
     end
-    
+
     it "does not handle request: /foo with route: /foo$" do
       response = get '/foo'
       expect(response.status).to be == 404
     end
   end
 
-  it "literally matches plus sign in paths" do
-    app = Sinatra.new do
-      get '/fo+o' do
-        [ 201, {}, "" ]
+  context "literally matches plus sign in paths" do
+    let(:app) do
+      Sinatra.new do
+        get('/fo+o'){'working'}
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/fo%2Bo', 'rack.input' => ''
-    expect(response[0]).to be == 201
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foooooooo', 'rack.input' => ''
-    expect(response[0]).to be == 404
+    it "handles request: /fo%2Bo with route: /fo+o" do
+      response = get '/fo%2Bo'
+      expect(response.body).to be == 'working'
+    end
+
+    it "handles request: /fo+o with route: /fo+o" do
+      response = get '/fo+o'
+      expect(response.body).to be == 'working'
+    end
+
+    it "does not handle request: /foo with route: /fo+o" do
+      response = get '/foo'
+      expect(response.status).to be == 404
+    end
   end
 
   it "does not convert plus sign into space as the value of a named param" do
