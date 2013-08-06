@@ -4,23 +4,39 @@ require 'spec_helper'
 
 describe "GET pattern matching" do
 
-  it 'makes regular expression captures available in params[:captures]' do
+  # context 'makes regular expression captures available in params[:captures]' do
+  #   verifier = Proc.new { |params|
+  #       expect(params[:captures]).to be == ['ty', 'erlin']
+  #     }
+  #   let(:app) do
+  #     Sinatra.new {
+  #       get(/^\/ci(.*)\/b(.*)/) do
+  #         verifier.call(params)
+  #         [201, {}, 'working']
+  #       end
+  #     }
+  #   end
 
-    verifier = Proc.new { |params|
-        expect(params[:captures]).to be == ['orooomma', 'f']
-      }
-      
-    app = Sinatra.new {
-      get(/^\/fo(.*)\/ba(.*)/) do
-        verifier.call(params)
-        [201, {}, 'right on']
-      end
-    }
+  #   it "handles request: /city/berlin with route: get(/^\/ci(.*)\/b(.*)/)"
+  #     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/city/berlin', 'rack.input' => ''
+  #     expect(response[2]).to be == ["working"]
+  #   end
+  # end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foorooomma/baf', 'rack.input' => ''
-    expect(response[0]).to be == 201
-    expect(response[2]).to be == ["right on"]
-  end
+  # it 'makes regular expression captures available in params[:captures]' do
+  #   mock_app {
+  #     get(/^\/fo(.*)\/ba(.*)/) do
+  #       assert_equal ['orooomma', 'f'], params[:captures]
+  #       'right on'
+  #     end
+  #   }
+
+  #   get '/foorooomma/baf'
+  #   assert ok?
+  #   assert_equal 'right on', body
+  # end
+
+
 
   it 'supports regular expression look-alike routes' do
 
@@ -53,7 +69,6 @@ describe "GET pattern matching" do
         [201, {},'right on']
       end
     end
-    
 
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/this/is/a/test/', 'rack.input' => ''
     expect(response[0]).to be == 201
@@ -103,17 +118,21 @@ describe "GET pattern matching" do
     it("will take the first param only") { expect(response.body).to be == 'a'}
   end
 
-  it "supports single splat params like /*" do
-    app = Sinatra.new do
-      get '/*' do
-        [ 201, {}, "#{params["splat"].join}" ]
+  context "supports single splat params like /*" do
+    let(:app) do
+      Sinatra.new do
+        get('/*'){ "#{params["splat"].join}" }
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'rack.input' => ''
-    expect(response[2]).to be == ["foo"]
+    it "handles request: /foo with route: /*" do
+      response = get '/foo'
+      expect(response.body).to be == "foo"
+    end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo/bar/baz', 'rack.input' => ''
-    expect(response[2]).to be == ["foo/bar/baz"]
+    it "handles request: /foo/bar/baz with route: /*" do
+      response = get '/foo/bar/baz'
+      expect(response.body).to be == "foo/bar/baz"
+    end
   end
 
   it "supports mixing multiple splat params like /*/foo/*/*" do

@@ -33,7 +33,7 @@ describe "GET special characters" do
   context "literally matches dot in paths" do
     let(:app) do
       Sinatra.new do
-        get('/test.bar'){'working'}
+        get('/test.bar'){ 'working' }
       end
     end
     it "handles request: /test.bar with route: /test.bar" do
@@ -50,7 +50,7 @@ describe "GET special characters" do
   context "literally matches dollar sign in paths" do
     let(:app) do
       Sinatra.new do
-        get('/foo$'){'working'}
+        get('/foo$'){ 'working' }
       end
     end
     it "handles request: /foo$ with route: /foo$" do
@@ -67,7 +67,7 @@ describe "GET special characters" do
   context "literally matches plus sign in paths" do
     let(:app) do
       Sinatra.new do
-        get('/fo+o'){'working'}
+        get('/fo+o'){ 'working' }
       end
     end
 
