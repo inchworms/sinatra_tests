@@ -36,25 +36,32 @@ describe "GET special characters" do
         get('/test.bar'){}
       end
     end
-    it "handles request /test.bar with route /test.bar" do
+    it "handles request: /test.bar with route: /test.bar" do
       response = get '/test.bar'
       expect(response.status).to be == 200
     end
 
-    it "does not handle request /test0bar with route /test.bar" do
+    it "does not handle request: /test0bar with route: /test.bar" do
       response = get '/test0bar'
       expect(response.status).to be == 404
     end
   end
 
-  it "literally matches dollar sign in paths" do
-    app = Sinatra.new do
-      get '/foo$' do
-        [ 201, {}, "" ]
+  context "literally matches dollar sign in paths" do
+    let(:app) do
+      Sinatra.new do
+        get('/foo$'){}
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo$', 'rack.input' => ''
-    expect(response[0]).to be == 201
+    it "handles request: /foo$ with route: /foo$" do
+      response = get '/foo$'
+      expect(response.status).to be == 200
+    end
+    
+    it "does not handle request: /foo with route: /foo$" do
+      response = get '/foo'
+      expect(response.status).to be == 404
+    end
   end
 
   it "literally matches plus sign in paths" do
