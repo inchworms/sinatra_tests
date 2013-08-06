@@ -21,26 +21,29 @@ describe "GET params" do
         get '/:foo' do
           bar = params['foo']
           bar = params[:foo]
-          [ 201, {}, bar ]
+          "working"
         end
       end
     end
     it "with indifferent hash" do
       response = get '/bar'
-      expect(response.body).to be == bar
+      expect(response.body).to be == "working"
     end
   end
-
-  it "merges named params and query string params in params" do
-    app = Sinatra.new do
-      get '/:foo' do
-        bar = params['foo']
-        biz = params[:bar]
-        [ 201, {}, '' ]
+#TODO: some explanation!
+  context "merges named params and query string params in params" do
+    let(:app) do
+      Sinatra.new do
+        get '/:foo' do
+          bar = params['foo']
+          biz = params['bar']
+        end
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/biz', 'rack.input' => ''
-    expect(response[0]).to be == 201
+    it "" do
+      response = get '/bar?baz=biz'
+      expect(response.status).to be == 200
+    end
   end
 
   it "supports optional named params like /?:foo?/?:bar?" do
