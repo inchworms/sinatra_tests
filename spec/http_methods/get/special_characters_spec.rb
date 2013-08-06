@@ -30,17 +30,21 @@ describe "GET special characters" do
     end
   end
 
-  it "literally matches dot in paths" do
-    app = Sinatra.new do
-      get '/test.bar' do
-        [ 201, {}, "" ]
+  context "literally matches dot in paths" do
+    let(:app) do
+      Sinatra.new do
+        get('/test.bar'){}
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/test.bar', 'rack.input' => ''
-    expect(response[0]).to be == 201
+    it "handles request /test.bar with route /test.bar" do
+      response = get '/test.bar'
+      expect(response.status).to be == 200
+    end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/test0bar', 'rack.input' => ''
-    expect(response[0]).to be == 404
+    it "does not handle request /test0bar with route /test.bar" do
+      response = get '/test0bar'
+      expect(response.status).to be == 404
+    end
   end
 
   it "literally matches dollar sign in paths" do
