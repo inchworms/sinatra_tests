@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe "GET pattern matching" do
-
+#  TODO
   # context 'makes regular expression captures available in params[:captures]' do
   #   verifier = Proc.new { |params|
   #       expect(params[:captures]).to be == ['ty', 'erlin']
