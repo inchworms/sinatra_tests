@@ -111,15 +111,21 @@ describe "GET special characters" do
     end
   end
 
-  it "matches paths that include spaces encoded with %20 or +" do
-    app = Sinatra.new do
-      get '/path with spaces' do
-        [ 201, {}, "" ]
+  context "matches paths that include spaces encoded with %20 or +" do
+    let(:app) do
+      Sinatra.new do
+        get('/path with spaces'){ 'working' }
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/path%20with%20spaces', 'rack.input' => ''
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/path+with+spaces', 'rack.input' => ''
-    expect(response[0]).to be == 201
+    it("handles request: /path%20with%20spaces with route: '/path with spaces") do
+      response = get '/path%20with%20spaces'
+      expect(response.body).to be == 'working'
+    end
+
+    it("handles request: /path+with+spaces with route: '/path with spaces") do
+      response = get '/path+with+spaces'
+      expect(response.body).to be == 'working'
+    end
   end
 
   it "matches paths that include ampersands" do

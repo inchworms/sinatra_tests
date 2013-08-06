@@ -133,14 +133,14 @@ describe 'GET provide conditions' do
 
     context "when sent '/' and 'HTTP_ACCEPT' => 'application/xml'" do
       let(:response) { get '/', {}, {'HTTP_ACCEPT' => 'application/xml'} }
-      it("returns the correct content-type header") { expect(response.header['Content-Type']).to be == 'application/xml;charset=utf-8' }
-      it("returns the correct body") { expect(response.body).to be == 'application/xml' }
+      it("returns the correct content-type header"){ expect(response.header['Content-Type']).to be == 'application/xml;charset=utf-8' }
+      it("returns the correct body"){ expect(response.body).to be == 'application/xml' }
     end
 
     context "when sent '/' and HTTP_ACCEPT' => ''" do
       let(:response) { get '/', {}, {'HTTP_ACCEPT' => ''} }
-      it("returns the correct content-type header") { expect(response.header['Content-Type']).to be == 'application/xml;charset=utf-8' }
-      it("returns the correct body") { expect(response.body).to be == '' }
+      it("returns the correct content-type header"){ expect(response.header['Content-Type']).to be == 'application/xml;charset=utf-8' }
+      it("returns the correct body"){ expect(response.body).to be == '' }
     end 
 
     context "when sent '/' and HTTP_ACCEPT' => '*/*'" do
