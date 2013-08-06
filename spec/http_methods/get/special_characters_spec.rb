@@ -9,21 +9,25 @@ describe "GET special characters" do
         get('/:mail/:name'){ "mail = #{params[:mail]}; name = #{params[:name]}" }
       end
     end
-    it "can handle /user@example.com/user" do
+    it "handles request: /user@example.com/user with route: /:mail/:name" do
       response = get '/user@example.com/user'
       expect(response.body).to be == "mail = user@example.com; name = user"
     end
   end
 
-  it "matches a literal dot ('.') outside of named params" do
-    app = Sinatra.new do
-      get '/:file.:ext' do
-        [ 201, {}, "" ]
+  context "matches a literal dot ('.') outside of named params" do
+    let(:app) do
+      Sinatra.new do
+        get '/:file.:ext' do
+          pony = params[:file]
+          jpg = params[:ext]
+        end
       end
     end
-
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/pony.jpg', 'rack.input' => ''
-    expect(response[0]).to be == 201
+    it "handles request: /pony.jpg with route: /:file.:ext" do
+      response = get '/pony.jpg'
+      expect(response.status).to be == 200
+    end
   end
 
   it "literally matches dot in paths" do
