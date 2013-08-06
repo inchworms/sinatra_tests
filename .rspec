@@ -1,3 +1,5 @@
+--require emoji-rspec
 
 --color
+--format hearts
 --format documentation

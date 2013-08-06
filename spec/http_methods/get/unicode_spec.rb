@@ -20,24 +20,40 @@ describe "GET unicode" do
     end
   end
 
-  it "handles encoded slashes correctly" do
-    app = Sinatra.new do
-      get '/:a' do
-        "#{params[:a]}"
+  context "encoded slashes" do
+    let(:app) do
+      Sinatra.new do
+        get '/:a' do
+          "#{params[:a]}"
+        end
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo%2Fbar', 'rack.input' => ''
-    expect(response[2]).to be == ["foo/bar"]
+    let(:response){ get '/foo%2Fbar' }
+    it "handles encoded slashes correctly" do
+      expect(response.body).to be == "foo/bar"
+    end
   end
 
-  it "overrides the content-type in error handlers" do
-    app = Sinatra.new do
-      get '/' do
-        [201, { 'Content-Type' => 'text/plain'}, '']
+  context "error handlers" do
+    let(:app) do
+      Sinatra.new do
+        get '/' do
+          [201, { 'Content-Type' => 'text/plain'}, '']
+        end
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/nonexistingroute', 'rack.input' => ''
-    expect(response[0]).to be == 404
-    expect(response[1]["Content-Type"]).to be == "text/html;charset=utf-8"
+    
+    let(:response) { get '/nonexistingroute' }
+    context "status" do 
+      it"returns a 404" do
+        expect(response.status).to be == 404
+      end
+    end
+
+    context "overrides the content-type" do
+      it "sets content-type to text/html;charset=utf-8" do
+        expect(response.header["Content-Type"]).to be == "text/html;charset=utf-8"
+      end
+    end
   end
 end
