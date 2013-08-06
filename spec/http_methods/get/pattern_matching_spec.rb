@@ -186,14 +186,16 @@ describe "GET pattern matching" do
     end
   end
 
-  it 'supports regular expressions' do
-    app = Sinatra.new do
-      get Regexp.new('^\/foo...\/bar$') do
-        [ 201, {}, "" ]
+  context 'supports regular expressions' do
+    let(:app) do
+      Sinatra.new do
+        get(Regexp.new('^\/foo...\/bar$')){ "working" }
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foooom/bar', 'rack.input' => ''
-    expect(response[0]).to be == 201
+    it "handles request: /foooom/bar with route: Regexp.new('^\/foo...\/bar$')" do
+      response = get '/foooom/bar'
+      expect(response.body).to be == 'working'
+    end
   end
 end
 
