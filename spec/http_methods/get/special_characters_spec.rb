@@ -87,14 +87,16 @@ describe "GET special characters" do
     end
   end
 
-  it "does not convert plus sign into space as the value of a named param" do
-    app = Sinatra.new do
-      get '/:foo' do
-        [ 201, {}, "#{params[:foo]}" ]
+  context "does not convert plus sign into space as the value of a named param" do
+    let(:app) do
+      Sinatra.new do
+        get('/:foo'){ "#{params[:foo]}" }
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/baz+bar', 'rack.input' => ''
-    expect(response[2]).to be == ["baz+bar"]
+    it "handles request: /baz+bar with route: /:foo" do
+      response = get '/baz+bar'
+      expect(response.body).to be == "baz+bar"
+    end
   end
 
   it "literally matches parenthese in paths" do
