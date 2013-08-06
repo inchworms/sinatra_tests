@@ -135,17 +135,21 @@ describe "GET pattern matching" do
     end
   end
 
-  it "supports mixing multiple splat params like /*/foo/*/*" do
-    app = Sinatra.new do
-      get '/*/foo/*/*' do
-        [ 201, {}, "#{params["splat"].join(" ")}" ]
+  context "supports mixing multiple splat params like /*/foo/*/*" do
+    let(:app) do
+      Sinatra.new do
+        get('/*/foo/*/*'){ "#{params["splat"].join(" ")}" }
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar/foo/bling/baz/boom', 'rack.input' => ''
-    expect(response[2]).to be == ["bar bling baz/boom"]
+    it "handles request: /bar/foo/bling/baz/boom with route: /*/foo/*/*" do
+      response = get '/bar/foo/bling/baz/boom'
+      expect(response.body).to be == "bar bling baz/boom"
+    end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar/foo/baz', 'rack.input' => ''
-    expect(response[0]).to be == 404
+    it "does not handle request: /bar/foo/baz with route: /*/foo/*/*" do
+      response = get '/bar/foo/baz'
+      expect(response.status).to be == 404
+    end
   end
 
   it "supports mixing named and splat params like /:foo/*" do
