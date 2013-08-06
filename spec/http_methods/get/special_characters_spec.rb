@@ -2,17 +2,17 @@
 
 require 'spec_helper'
 
-    
 describe "GET special characters" do
-  it "matches a dot ('.') as part of a named param" do
-    app = Sinatra.new do
-      get '/:foo/:bar' do
-        [ 201, {}, "#{params[:foo]}" ]
+  context "matches a dot ('.') as part of a named param" do
+    let(:app) do
+      Sinatra.new do
+        get('/:mail/:name'){ "mail = #{params[:mail]}; name = #{params[:name]}" }
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/user@example.com/name', 'rack.input' => ''
-    expect(response[0]).to be == 201
-    expect(response[2]).to be == ['user@example.com']
+    it "can handle /user@example.com/user" do
+      response = get '/user@example.com/user'
+      expect(response.body).to be == "mail = user@example.com; name = user"
+    end
   end
 
   it "matches a literal dot ('.') outside of named params" do
