@@ -99,14 +99,16 @@ describe "GET special characters" do
     end
   end
 
-  it "literally matches parenthese in paths" do
-    app = Sinatra.new do
-      get '/foo(bar)' do
-        [ 201, {}, "" ]
+  context "literally matches parenthese in paths" do
+    let(:app) do
+      Sinatra.new do
+        get('/foo(bar)'){'working'}
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo(bar)', 'rack.input' => ''
-    expect(response[0]).to be == 201
+    it "handles request: /foo(bar) with route: /foo(bar)" do
+      response = get '/foo(bar)'
+      expect(response.body).to be == 'working'
+    end
   end
 
   it "matches paths that include spaces encoded with %20 or +" do
