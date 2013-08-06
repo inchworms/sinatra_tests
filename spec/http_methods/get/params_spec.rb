@@ -36,30 +36,37 @@ describe "GET params" do
       Sinatra.new do
         get '/:foo' do
           bar = params['foo']
-          biz = params['bar']
+          biz = params['baz']
+          "working"
         end
       end
     end
     it "" do
       response = get '/bar?baz=biz'
-      expect(response.status).to be == 200
+      expect(response.body).to be == "working"
     end
   end
 
-  it "supports optional named params like /?:foo?/?:bar?" do
-    app = Sinatra.new do
-      get '/?:foo?/?:bar?' do
-        [ 201, {}, ["foo=#{params[:foo]};bar=#{params[:bar]}"] ]
+  context "supports optional named params like /?:name?/?:city?" do
+    let(:app) do
+      Sinatra.new do
+        get('/?:name?/?:city?'){ "Name=#{params[:name]};City=#{params[:city]}" }
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/hello/world', 'rack.input' => ''
-    expect(response[2]).to be == ["foo=hello;bar=world"]
+    it "both params are set" do
+      response = get'/carla/berlin'
+      expect(response.body).to be == "Name=carla;City=berlin"
+    end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/hello', 'rack.input' => ''
-    expect(response[2]).to be == ["foo=hello;bar="]
+    it "one param is set" do
+      response = get'/carla'
+      expect(response.body).to be == "Name=carla;City="
+    end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'rack.input' => ''
-    expect(response[2]).to be == ["foo=;bar="]
+    it "no param is set" do
+      response = get'/'
+      expect(response.body).to be == "Name=;City="
+    end
   end
 
   context "nested params" do
