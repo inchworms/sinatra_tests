@@ -186,7 +186,6 @@ describe 'GET route flow' do
     end
 
     it 'allows using call to fire another request internally' do
-      expect(get('/foo').status).to be == 201
       expect(get('/foo').body).to be == "BAR"
     end
 
@@ -209,7 +208,6 @@ describe 'GET route flow' do
 
     it 'plays well with other routing middleware' do
       expect(get('/test/foo').body).to be == 'hello'
-      expect(get('/test/foo').status).to be == 200
     end
   end
 
