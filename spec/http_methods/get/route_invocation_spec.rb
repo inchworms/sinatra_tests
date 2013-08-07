@@ -74,7 +74,6 @@ describe 'GET route invocations'do
         get('/:foo/:bar'){ 'working' }
       end
     end
-
     it 'succeeds if no block parameters are specified' do
       response = get '/a/b'
       expect(response.body).to be == 'working'
@@ -95,27 +94,24 @@ describe 'GET route invocations'do
     end
   end
 
-  
   context 'it' do
     let(:app) do
       Sinatra.new do
         get ('/:foo/:bar/:baz') do |foo, bar|
-          [201, {}, ["quux"]]
+          [201, {}, ["not working"]]
         end
       end
     end
-
     it ('raises an ArgumentError with block arity > 1 and too many values') do
       expect { get '/a/b/c' }.to raise_error(ArgumentError)
     end
   end
 
-
   context 'it' do
     let(:app) do
       Sinatra.new do
         get('/:foo/:bar/:baz') do |foo|
-          [201, {}, ["quux"]] 
+          [201, {}, ["not working"]] 
         end
       end
     end
@@ -129,7 +125,7 @@ describe 'GET route invocations'do
     let(:app) do
       Sinatra.new do
         get('/foo') do |foo|
-          [201, {}, ["quux"]]
+          [201, {}, ["not working"]]
         end
       end
     end
@@ -143,7 +139,7 @@ describe 'GET route invocations'do
     let(:app) do
       Sinatra.new do
         get('/:foo/:bar') do |foo, bar, baz|
-          [201, {}, ["quux"]] 
+          [201, {}, ["not working"]] 
         end
       end
     end
