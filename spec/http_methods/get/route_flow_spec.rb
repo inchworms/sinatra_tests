@@ -36,15 +36,18 @@ describe 'GET route flow' do
   end
 
 
-  it 'halts with an array of strings' do
-    app = Sinatra.new do
-      get '/' do
-        halt %w[Hello World How Are You]
+  context 'halts with an array of strings' do
+    let(:app) do
+      Sinatra.new do
+        get '/' do
+          halt %w[Hello World How Are You]
+        end
       end
     end
-
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'rack.input' => ''
-    expect(response[2]).to be == (%w[Hello World How Are You])
+    it "returns array of strings" do
+      response = get '/'
+      expect(response.body).to be == "HelloWorldHowAreYou"
+    end
   end
 
   it 'sets response.status with halt' do
