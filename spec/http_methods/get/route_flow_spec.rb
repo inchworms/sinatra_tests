@@ -15,7 +15,6 @@ describe 'GET route flow' do
     end
 
     let(:response) { get '/' }
-    it('returns 201 as status') { expect(response.status).to be == 201}
     it('returns correct body') { expect(response.body).to be == 'Hello World' }
   end
 
@@ -132,19 +131,24 @@ describe 'GET route flow' do
     end
   end
 
-  it "matches routes defined in superclasses" do
+  context "matches routes defined in superclasses" do
     base = Class.new(Sinatra::Base)
     base.get('/foo') { 'foo in baseclass' }
 
-    app = Sinatra.new(base) {
-      get('/bar') { 'bar in subclass' }
-    }
+    let(:app) do
+      Sinatra.new(base) do
+        get('/bar'){ 'bar in subclass' }
+      end
+    end
+    it "matches /foo from baseclass" do
+      response = get '/foo'
+      expect(response.body).to be == 'foo in baseclass'
+    end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'rack.input' => ''
-    expect(response[2]).to be == ['foo in baseclass']
-
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar', 'rack.input' => ''
-    expect(response[2]).to be == ['bar in subclass']
+    it "matches /bar from subclass" do
+      response = get '/bar'
+      expect(response.body).to be == 'bar in subclass'
+    end
   end
 
   it 'matches routes in subclasses instead of superclasses' do
