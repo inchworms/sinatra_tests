@@ -71,7 +71,6 @@ describe "GET pattern matching" do
     end
 
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/this/is/a/test/', 'rack.input' => ''
-    expect(response[0]).to be == 201
     expect(response[2]).to be == ["right on"]
 
   end
@@ -82,14 +81,16 @@ describe "GET pattern matching" do
   end
 
 
-  it "supports named captures like %r{/hello/(?<person>[^/?#]+)}" do
-    app = Sinatra.new do
-      get Regexp.new('/hello/(?<person>[^/?#]+)') do
-        [ 201, {}, ["Hello #{params['person']}"] ]
+  context "supports named captures like %r{/hello/(?<person>[^/?#]+)}" do
+    let(:app) do
+      Sinatra.new do
+        get(Regexp.new('/hello/(?<person>[^/?#]+)')){"Hello #{params['person']}" }
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/hello/Frank', 'rack.input' => ''
-    expect(response[2]).to be == ["Hello Frank"]
+    it "handles request: /hello/Frank with route: /hello/(?<person>[^/?#]+)" do
+      response = get '/hello/Frank'
+      expect(response.body).to be == "Hello Frank"
+    end
   end
 
   it "supports optional named captures like %r{/page(?<format>.[^/?#]+)?}" do
