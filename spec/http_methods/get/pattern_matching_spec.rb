@@ -80,7 +80,6 @@ describe "GET pattern matching" do
     expect { Sinatra.new { get(42){} } }.to raise_error(TypeError)
   end
 
-
   context "supports named captures like %r{/hello/(?<person>[^/?#]+)}" do
     let(:app) do
       Sinatra.new do
@@ -93,20 +92,24 @@ describe "GET pattern matching" do
     end
   end
 
-  it "supports optional named captures like %r{/page(?<format>.[^/?#]+)?}" do
-    app = Sinatra.new do
-      get Regexp.new('/page(?<format>.[^/?#]+)?') do
-        [ 201, {}, ["format=#{params[:format]}"] ]
+  context "supports optional named captures like %r{/page(?<format>.[^/?#]+)?}" do
+    let(:app)do
+      Sinatra.new do
+        get(Regexp.new('/page(?<format>.[^/?#]+)?')){ "format=#{params[:format]}" }
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/page.html', 'rack.input' => ''
-    expect(response[2]).to be == ["format=.html"]
-
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/page.xml', 'rack.input' => ''
-    expect(response[2]).to be == ["format=.xml"]
-
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/page', 'rack.input' => ''
-    expect(response[2]).to be == ["format="]
+    context "request: /page.html" do
+      let(:response){ get '/page.html' }
+      it("returns format=html"){ expect(response.body).to be == "format=.html" }
+    end
+    context "request: /page.xml" do
+      let(:response){ get '/page.xml' }
+      it(" returns format=xml"){ expect(response.body).to be == "format=.xml" }
+    end
+    context "request: /page" do
+      let(:response){ get '/page' }
+      it("returns no format"){ expect(response.body).to be == "format=" }
+    end
   end
 
   context 'does not concatenate params with the same name' do
