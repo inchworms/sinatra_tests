@@ -68,15 +68,17 @@ describe 'GET route invocations'do
     end
   end
 
-  it 'succeeds if no block parameters are specified' do
-    app = Sinatra.new do
-      get '/:foo/:bar' do
-        'quux'
+  context 'no block parameters' do
+    let(:app) do
+      Sinatra.new do
+        get('/:foo/:bar'){ 'working' }
       end
     end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/a/b', 'rack.input' => ''
-    expect(response[2]).to be == ['quux']
+    it 'succeeds if no block parameters are specified' do
+      response = get '/a/b'
+      expect(response.body).to be == 'working'
+    end
   end
 
   context 'passes all params' do
