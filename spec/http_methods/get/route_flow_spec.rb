@@ -151,22 +151,24 @@ describe 'GET route flow' do
     end
   end
 
-  it 'matches routes in subclasses instead of superclasses' do
+  context 'matches routes in subclasses instead of superclasses' do
     base = Class.new(Sinatra::Base)
-    base.get('/foo') { 'foo in baseclass' }
-    base.get('/bar') { 'bar in baseclass' }
+    base.get('/foo'){ 'foo in baseclass' }
+    base.get('/bar'){ 'bar in baseclass' }
 
-    app = Sinatra.new(base) do
-      get'/foo' do
-        'foo in subclass'
+    let(:app) do
+      Sinatra.new(base) do
+        get('/foo'){ 'foo in subclass' }
       end
     end
-
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/foo', 'rack.input' => ''
-    expect(response[2]).to be == ['foo in subclass']
-
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar', 'rack.input' => ''
-    expect(response[2]).to be == ['bar in baseclass']
+    it "request: /foo matches /foo in subclass" do
+      response = get '/foo'
+      expect(response.body).to be == 'foo in subclass'
+    end
+    it "request: /bar matches /bar in baseclass" do
+      response = get '/bar'
+      expect(response.body).to be == 'bar in baseclass'
+    end
   end
 
   context 'internal request' do
