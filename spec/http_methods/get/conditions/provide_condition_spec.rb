@@ -114,7 +114,7 @@ describe 'GET provide conditions' do
       application/x-pkcs7-mime
       application/x-pkcs7-signature
       )
-    #iterate through the above array to majke a seperate test for each
+    #iterate through the above array to make a seperate test for each
     mime_types.each do |mime_type| 
       it "matches #{mime_type} correctly" do
         expect(mime_type).to match(Sinatra::Request::HEADER_VALUE_WITH_PARAMS)
@@ -190,7 +190,7 @@ describe 'GET provide conditions' do
     end
 
      context "when sent '/stream' and HTTP_ACCEPT' => 'application/xml'" do
-      let(:response) { get '/stream', {}, {'HTTP_ACCEPT' =>  'application/xml'} }
+      let(:response) { get '/stream', {}, {'HTTP_ACCEPT' => 'application/xml'} }
       it("returns a 404") { expect(response.status).to be == 404 }
     end
 
@@ -412,7 +412,7 @@ describe 'GET provide conditions' do
       it("prefers image/png"){ expect(response.body).to be == 'image/png' }
     end
   end
-#DOTO: don't get that
+#TODO: don't get that
   context 'properly handles quoted strings in parameters' do
     let(:app) do
       Sinatra.new do

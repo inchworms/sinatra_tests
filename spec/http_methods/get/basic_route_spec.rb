@@ -16,10 +16,10 @@ describe "GET basic '/' route" do
   context "/hello routes" do
     let(:app) do
       Sinatra.new do
-        get('/hello'){ 'works' }
+        get('/hello'){ 'working' }
       end
     end
     let(:response){ get'/hello' }
-    it("gets hello route"){ expect(response.body).to be == "works" }
+    it("gets hello route"){ expect(response.body).to be == "working" }
   end
 end
