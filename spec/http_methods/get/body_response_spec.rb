@@ -5,7 +5,7 @@ require 'spec_helper'
 describe "GET body responses" do
   let(:app) do
     Sinatra.new do
-      get('/'){[ 201, {}, nil ]}
+      get('/'){ nil }
     end
   end
   it "returns empty string when body is nil" do
