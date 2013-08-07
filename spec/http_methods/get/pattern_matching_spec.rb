@@ -3,43 +3,24 @@
 require 'spec_helper'
 
 describe "GET pattern matching" do
-#  TODO
-  # context 'makes regular expression captures available in params[:captures]' do
-  #   verifier = Proc.new { |params|
-  #       expect(params[:captures]).to be == ['ty', 'erlin']
-  #     }
-  #   let(:app) do
-  #     Sinatra.new {
-  #       get(/^\/ci(.*)\/b(.*)/) do
-  #         verifier.call(params)
-  #         [201, {}, 'working']
-  #       end
-  #     }
-  #   end
-
-  #   it "handles request: /city/berlin with route: get(/^\/ci(.*)\/b(.*)/)"
-  #     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/city/berlin', 'rack.input' => ''
-  #     expect(response[2]).to be == ["working"]
-  #   end
-  # end
-
-  # it 'makes regular expression captures available in params[:captures]' do
-  #   mock_app {
-  #     get(/^\/fo(.*)\/ba(.*)/) do
-  #       assert_equal ['orooomma', 'f'], params[:captures]
-  #       'right on'
-  #     end
-  #   }
-
-  #   get '/foorooomma/baf'
-  #   assert ok?
-  #   assert_equal 'right on', body
-  # end
-
-
+#  TODO: refactor
+  it 'makes regular expression captures available in params[:captures]' do
+    verifier = Proc.new { |params|
+        expect(params[:captures]).to be == ['orooomma', 'f']
+      }
+      
+    app = Sinatra.new {
+      get(/^\/fo(.*)\/ba(.*)/) do
+        verifier.call(params)
+        [201, {}, 'right on']
+      end
+    }
+ 
+    expect(response[0]).to be == 201
+    expect(response[2]).to be == ["right on"]
+  end
 
   it 'supports regular expression look-alike routes' do
-
     class RegexpLookAlike
       class MatchData
         def captures
@@ -74,7 +55,6 @@ describe "GET pattern matching" do
     expect(response[2]).to be == ["right on"]
 
   end
-
 
   it 'raises a TypeError when pattern is not a String or Regexp' do
     expect { Sinatra.new { get(42){} } }.to raise_error(TypeError)

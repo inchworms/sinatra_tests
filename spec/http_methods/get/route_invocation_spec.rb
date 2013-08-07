@@ -37,15 +37,14 @@ describe 'GET route invocations'do
   context 'passes regular expression' do
     let(:app) do
       Sinatra.new do 
-        get (/^\/fo(.*)\/ba(.*)/) do |foo, bar|
-          [201, {}, [foo, bar]]
+        get (/^\/H(.*)\/w(.*)/) do |h, w|
+          [201, {}, [h, w]]
         end
       end
     end
 
     it 'correctly captures as block parameters' do
-      expect(get('/foorooomma/baf').body).to be == "orooommaf"
-      expect(get('/foorooomma/baf').status).to be == 201
+      expect(get('/Hello/world').body).to be == "elloorld"
     end
 
   end
