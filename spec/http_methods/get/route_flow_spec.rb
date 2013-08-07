@@ -115,7 +115,6 @@ describe 'GET route flow' do
     end
   end
 
-  
   context 'optional blocks' do
     let(:app) do
       Sinatra.new do
@@ -186,7 +185,6 @@ describe 'GET route flow' do
     end
 
   end
-
 
   context 'routing middleware' do
     middleware = Sinatra.new
