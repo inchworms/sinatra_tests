@@ -79,16 +79,18 @@ describe 'GET route invocations'do
     expect(response[2]).to be == ['quux']
   end
 
-  
-  it 'passes all params with block param arity -1 (splat args)' do
-    app = Sinatra.new do
-      get '/:foo/:bar' do |*args|
-        args.join
+  context 'passes all params' do
+    let(:app) do
+      Sinatra.new do
+        get '/:foo/:bar' do |*args|
+          args.join
+        end
       end
     end
-
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/a/b', 'rack.input' => ''
-    expect(response[2]).to be == ['ab']
+    it " with block param arity -1 (splat args)" do
+      response = get '/a/b'
+      expect(response.body).to be == 'ab'
+    end
   end
 
   
