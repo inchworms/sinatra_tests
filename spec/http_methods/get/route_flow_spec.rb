@@ -49,19 +49,20 @@ describe 'GET route flow' do
     end
   end
 
-  it 'sets response.status with halt' do
+  context 'response.status' do
     status_was = nil
-    app = Sinatra.new do
-      after { status_was = status }
-      get('/') { halt 500, 'error' }
+    let(:app) do
+      Sinatra.new do
+        after { status_was = status }
+        get('/'){ halt 500, 'error' }
+      end
     end
-    
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/', 'rack.input' => ''
-    expect(response[0]).to be == 500
-    expect(status_was).to be == 500
-       
+    it "sets response.status with halt" do
+      response = get '/'
+      expect(response.status).to be == 500
+      expect(status_was).to be == 500
+    end
   end
-  
 
   it 'transitions to the next matching route on pass' do
 
@@ -126,13 +127,11 @@ describe 'GET route flow' do
         end
       end
     end
-    
 
     it 'uses optional block passed to pass as route block if no other route is found' do
       expect(get('/').body).to be == "this"
     end
   end
-
 
   it "matches routes defined in superclasses" do
     base = Class.new(Sinatra::Base)
@@ -147,9 +146,7 @@ describe 'GET route flow' do
 
     response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar', 'rack.input' => ''
     expect(response[2]).to be == ['bar in subclass']
-
   end
-  
 
   it 'matches routes in subclasses instead of superclasses' do
     base = Class.new(Sinatra::Base)
