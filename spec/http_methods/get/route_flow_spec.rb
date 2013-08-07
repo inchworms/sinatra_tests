@@ -35,7 +35,6 @@ describe 'GET route flow' do
 
   end
 
-
   context 'halts with an array of strings' do
     let(:app) do
       Sinatra.new do

@@ -220,7 +220,6 @@ describe 'GET provide conditions' do
 
     context "with '/' and HTTP_ACCEPT' => 'text/html'" do
       let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'text/html'} }
-
       it("returns correct Content-Type"){ expect(response.header['Content-Type']).to be == 'text/html;charset=utf-8' }
       it("returns correct body"){ expect(response.body).to be == 'html' }
     end

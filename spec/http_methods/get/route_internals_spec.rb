@@ -5,9 +5,7 @@ require 'spec_helper'
 describe "route internals" do
 
   it "returns the route signature" do
-
     signature = list = nil
-
     app = Sinatra.new do
       signature = post('/') { }
       list = routes['POST']
@@ -18,19 +16,20 @@ describe "route internals" do
     expect(list).to include(signature)
   end
 
-  it "sets env['sinatra.route'] to the matched route" do
+  context "env['sinatra.route']" do
     route = nil
-    app = Sinatra.new do
-      after do
-        route = request.env['sinatra.route']
-      end
-      get '/users/:id/status' do
-        [201, {} ["ok"]]
+    let(:app) do
+      Sinatra.new do
+        after do
+          route = request.env['sinatra.route']
+        end
+        get('/users/:id/status'){ "" }
       end
     end
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/users/1/status', 'rack.input' => ''
-    expect(response[0]).to be == 201
-    expect(route).to be == "GET /users/:id/status"
+    it "sets env['sinatra.route'] to the matched route" do
+      response = get '/users/1/status'
+      expect(route).to be == "GET /users/:id/status"
+    end
   end
 
 end
