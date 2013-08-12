@@ -149,12 +149,13 @@ describe 'GET route flow' do
       response = get '/bar'
       expect(response.body).to be == 'bar in subclass'
     end
-  end
+  encoding
 
   context 'matches routes in subclasses instead of superclasses' do
-    base = Class.new(Sinatra::Base)
-    base.get('/foo'){ 'foo in baseclass' }
-    base.get('/bar'){ 'bar in baseclass' }
+    base = Class.new(Sinatra::Base) do
+      get('/foo'){ 'foo in baseclass' }
+      get('/bar'){ 'bar in baseclass' }
+    end
 
     let(:app) do
       Sinatra.new(base) do
