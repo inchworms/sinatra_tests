@@ -4,20 +4,22 @@ require 'spec_helper'
 
 describe "GET pattern matching" do
 #  TODO: refactor
-  it 'makes regular expression captures available in params[:captures]' do
-    verifier = Proc.new { |params|
-        expect(params[:captures]).to be == ['orooomma', 'f']
+# https://github.com/sinatra/sinatra/blob/master/test/routing_test.rb#L527
+  the_params = nil
+
+    let(:app) do 
+      Sinatra.new {
+        get(/^\/fo(.*)\/ba(.*)/) do
+          the_params = params.dup
+        end
       }
-      
-    app = Sinatra.new {
-      get(/^\/fo(.*)\/ba(.*)/) do
-        verifier.call(params)
-        [201, {}, 'right on']
-      end
-    }
- 
-    expect(response[0]).to be == 201
-    expect(response[2]).to be == ["right on"]
+    end
+  
+
+  it 'makes regular expression captures available in params[:captures]' do
+    get '/foorooomma/baf'
+
+    expect(the_params[:captures]).to be == ['orooomma', 'f']
   end
 
   it 'supports regular expression look-alike routes' do

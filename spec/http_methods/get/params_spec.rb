@@ -74,6 +74,7 @@ describe "GET params" do
       @app
     end
     # TODO: really need a Proc?
+    # https://github.com/sinatra/sinatra/blob/master/test/routing_test.rb#L392
     it "exposes nested params with indifferent hash" do
       verifier = Proc.new { |params|
         expect(params["bar"][0][:foo]).to eql("baz")
