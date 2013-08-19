@@ -63,27 +63,26 @@ describe 'GET route flow' do
     end
   end
 
-  it 'transitions to the next matching route on pass' do
-# https://github.com/sinatra/sinatra/blob/master/test/routing_test.rb#L610
-    verifier = Proc.new { |request|
-        expect(request.params).not_to include('foo')
-      }
+  the_params = nil
 
-    app = Sinatra.new do
+  let(:app) do
+    Sinatra.new do
       get '/:foo' do
         pass
           'Hello Foo'
-      end
+        end
 
       get '/*' do
-         verifier.call(request)
+         the_params = params.dup
         'Hello World'
       end
     end
+  end
   
-  response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/bar', 'rack.input' => ''
-  expect(response[2]).to be == ['Hello World']
-
+  it 'transitions to the next matching route on pass' do
+    response =  get '/bar'
+    expect(the_params).not_to include('foo')
+    expect(response.body).to be == 'Hello World'
   end
   
 # for the context below, in the original unit tests there were two seperate tests:
