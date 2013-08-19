@@ -3,8 +3,6 @@
 require 'spec_helper'
 
 describe "GET pattern matching" do
-#  TODO: refactor
-# https://github.com/sinatra/sinatra/blob/master/test/routing_test.rb#L527
   the_params = nil
 
     let(:app) do 
