@@ -15,7 +15,7 @@ describe "GET params" do
     end
   end
 #TODO: some explanation!
-  context "exposes params" do
+  context "indifferent hash" do
     let(:app) do
       Sinatra.new do
         get '/:foo' do
@@ -25,7 +25,7 @@ describe "GET params" do
         end
       end
     end
-    it "with indifferent hash" do
+    it "exposes params with indifferent hash" do
       response = get '/bar'
       expect(response.body).to be == "working"
     end
@@ -70,62 +70,60 @@ describe "GET params" do
   end
 
   context "nested params" do
-    def app
-      @app
-    end
-    # TODO: really need a Proc?
-    # https://github.com/sinatra/sinatra/blob/master/test/routing_test.rb#L392
-    it "exposes nested params with indifferent hash" do
-      verifier = Proc.new { |params|
-        expect(params["bar"][0][:foo]).to eql("baz")
-        expect(params["bar"][0]["foo"]).to eql("baz")
-      }
-      @app = Sinatra.new do
+   
+    the_params = nil
+
+    let(:app) do
+      Sinatra.new do
         get '/foo' do
-          verifier.call(params)
-          [201, {}, '']
+          the_params = params.dup
         end
       end
-      response = get '/foo?bar[][foo]=baz'
-      expect(response.status).to be == 201
+    end
+
+    it "exposes nested params with indifferent hash" do
+      get '/foo?bar[][foo]=baz'
+      expect(the_params["bar"][0][:foo]).to eql("baz")
+      expect(the_params["bar"][0]["foo"]).to eql("baz")
+    end
+
+    let(:app) do
+      Sinatra.new do
+        get '/foo' do
+          the_params = params.dup
+        end
+      end
     end
 
     it "supports arrays within params" do
-      verifier = Proc.new { |params|
-        expect(params[:bar]).to be == ["A", "B"]
-      }
-      @app = Sinatra.new do
+      response = get '/foo?bar[]=A&bar[]=B'
+      expect(the_params[:bar]).to be == ["A", "B"]
+    end
+
+
+    expected_params = {
+                    "emacs" => {
+                                "map"     => { "goto-line" => "M-g g" },
+                                "version" => "22.3.1"
+                                },
+                    "browser" => {
+                                "firefox" => {"engine" => {"name"=>"spidermonkey", "version"=>"1.7.0"}},
+                                "chrome"  => {"engine" => {"name"=>"V8", "version"=>"1.0"}}
+                                },
+                    "paste" => {"name"=>"hello world", "syntax"=>"ruby"}
+    }
+   
+    let(:app) do
+      Sinatra.new do
         get '/foo' do
-          verifier.call(params)
-          [201, {}, '']
+          the_params = params.dup
         end
       end
-      response = get '/foo?bar[]=A&bar[]=B'
-      expect(response.status).to be == 201
     end
 
     it "supports deeply nested params" do
-      expected_params = {
-                      "emacs" => {
-                                  "map"     => { "goto-line" => "M-g g" },
-                                  "version" => "22.3.1"
-                                  },
-                      "browser" => {
-                                  "firefox" => {"engine" => {"name"=>"spidermonkey", "version"=>"1.7.0"}},
-                                  "chrome"  => {"engine" => {"name"=>"V8", "version"=>"1.0"}}
-                                  },
-                      "paste" => {"name"=>"hello world", "syntax"=>"ruby"}
-      }
-
-      verifier = ->(params) { expect(params).to be == expected_params }
-      @app = Sinatra.new do
-        get '/foo' do
-          verifier.call(params)
-          [201, {}, '']
-        end
-      end
-      response = get '/foo', expected_params
-      expect(response.status).to be == 201
+      get '/foo', expected_params
+      expect(the_params).to be == expected_params
     end
   end
 
