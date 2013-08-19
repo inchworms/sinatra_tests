@@ -412,7 +412,7 @@ describe 'GET provide conditions' do
       it("prefers image/png"){ expect(response.body).to be == 'image/png' }
     end
   end
-#TODO: don't get that
+
   context 'properly handles quoted strings in parameters' do
     let(:app) do
       Sinatra.new do

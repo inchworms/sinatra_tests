@@ -54,22 +54,4 @@ describe 'GET agent conditions' do
    end
   end
 
-  context 'adds hostname condition when it is in options' do
-    let(:app) do
-      Sinatra.new do 
-        get('/foo', :host => 'host'){ 'Hello World' }
-      end
-    end
-
-    context "get /foo" do
-      let(:response){ get '/foo' }
-      it("returns correct status"){ expect(response.status).to be == 404 }
-    end
-
-    context "get /foo" do
-      let(:response){ get '/foo', {}, {'HTTP_HOST' => 'host'} }
-      it("returns correct status"){ expect(response.status).to be == 200 }
-    end
-  end
-
 end

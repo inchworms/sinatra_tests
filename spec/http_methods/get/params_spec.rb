@@ -30,20 +30,20 @@ describe "GET params" do
       expect(response.body).to be == "working"
     end
   end
-#TODO: some explanation!
-  context "merges named params and query string params in params" do
+
+  context "both named and query string params" do
+    the_params = nil
     let(:app) do
       Sinatra.new do
         get '/:foo' do
-          bar = params['foo']
-          biz = params['baz']
-          "working"
+          the_params = params.dup
         end
       end
     end
-    it "" do
-      response = get '/bar?baz=biz'
-      expect(response.body).to be == "working"
+    it "merges params correctly" do
+      get '/bar?baz=biz'
+      expect(the_params["foo"]).to be == "bar"
+      expect(the_params["baz"]).to be == "biz"
     end
   end
 

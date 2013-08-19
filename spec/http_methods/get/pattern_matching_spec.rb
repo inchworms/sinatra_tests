@@ -5,14 +5,13 @@ require 'spec_helper'
 describe "GET pattern matching" do
   the_params = nil
 
-    let(:app) do 
-      Sinatra.new {
-        get(/^\/fo(.*)\/ba(.*)/) do
-          the_params = params.dup
-        end
-      }
-    end
-  
+  let(:app) do
+    Sinatra.new {
+      get(/^\/fo(.*)\/ba(.*)/) do
+        the_params = params.dup
+      end
+    }
+  end
 
   it 'makes regular expression captures available in params[:captures]' do
     get '/foorooomma/baf'
@@ -20,7 +19,11 @@ describe "GET pattern matching" do
     expect(the_params[:captures]).to be == ['orooomma', 'f']
   end
 
-  it 'supports regular expression look-alike routes' do
+  it 'raises a TypeError when pattern is not a String or Regexp' do
+    expect { Sinatra.new { get(42){} } }.to raise_error(TypeError)
+  end
+
+  context 'supporting regular expression look-alike routes' do
     class RegexpLookAlike
       class MatchData
         def captures
@@ -37,28 +40,25 @@ describe "GET pattern matching" do
       end
     end
 
-    verifier = Proc.new { |params|
-        expect(params[:one]).to be == 'this'
-        expect(params[:two]).to be == 'is'
-        expect(params[:three]).to be == 'a'
-        expect(params[:four]).to be == 'test'
-      }
+    the_params = nil
 
-    app = Sinatra.new do
-      get(RegexpLookAlike.new) do
-        verifier.call(params)
-        [201, {},'right on']
+    let(:app) do
+      Sinatra.new do
+        get(RegexpLookAlike.new) do
+          the_params = params.dup
+        end
       end
     end
 
-    response = app.call 'REQUEST_METHOD' => 'GET', 'PATH_INFO' => '/this/is/a/test/', 'rack.input' => ''
-    expect(response[2]).to be == ["right on"]
-
+    it "correctly extracts named captures" do
+      response = get '/this/is/a/test/'
+      expect(the_params[:one]).to be == 'this'
+      expect(the_params[:two]).to be == 'is'
+      expect(the_params[:three]).to be == 'a'
+      expect(the_params[:four]).to be == 'test'
+    end
   end
 
-  it 'raises a TypeError when pattern is not a String or Regexp' do
-    expect { Sinatra.new { get(42){} } }.to raise_error(TypeError)
-  end
 
   context "supports named captures like %r{/hello/(?<person>[^/?#]+)}" do
     let(:app) do

@@ -3,25 +3,42 @@
 require 'spec_helper'
 
 describe "GET host_condition" do
-# TODO: same as 'adds hostname condition when it is in options' test in agent_condition_spec.rb line 57?
   context "passes to the next route when host_name does not match" do
     let(:app) do
       Sinatra.new do
         host_name 'example.com'
-        get('/foo'){ 'Hello World' }
+        get('/foo'){ }
       end
     end
 
-    context "get /foo" do
-      let(:response){ get '/foo' }
-      it("returns status"){ expect(response.status).to be == 404 }
+    it "get /foo returns 404" do
+      response = get '/foo'
+      expect(response.status).to be == 404
     end
 
-    context "get /foo & HTTP_HOST = example.com" do
-      let(:response){ get '/foo', {}, {'HTTP_HOST' => 'example.com'} }
-      it("returns correct body"){ expect(response.body).to be == "Hello World" }
+    it "get /foo & HTTP_HOST = example.com returns 200" do
+      response = get '/foo', {}, {'HTTP_HOST' => 'example.com'}
+      expect(response.status).to be == 200
     end
   end
-end
 
+   context 'adds hostname condition when it is in options' do
+    let(:app) do
+      Sinatra.new do 
+        get('/foo', :host => 'example.com'){ 'Hello World' }
+      end
+    end
+
+    it "get /foo returns 404" do
+      response = get '/foo'
+      expect(response.status).to be == 404
+    end
+
+    it "get /foo & HTTP_HOST = example.com returns 200" do
+      response = get '/foo', {}, {'HTTP_HOST' => 'example.com'}
+      expect(response.status).to be == 200
+    end
+  end
+
+end
 
