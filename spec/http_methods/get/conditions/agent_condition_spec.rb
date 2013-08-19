@@ -12,15 +12,14 @@ describe 'GET agent conditions' do
       end
     end
 
-    context "get /foo" do
-     let(:response){ get '/foo' }
-     it("returns correct status"){ expect(response.status).to be == 404 }
+    it "get /foo returns a 404" do
+     response = get '/foo'
+     expect(response.status).to be == 404
     end
 
-    context "get /foo & HTTP_USER_AGENT = Foo Bar" do
-     let(:response){ get '/foo', {}, {'HTTP_USER_AGENT' => 'Foo Bar'} }
-     it("returns correct status"){ expect(response.status).to be == 200 }
-     it("returns correct body"){ expect(response.body).to be == "Hello World" }
+    it "get /foo & HTTP_USER_AGENT = Foo Bar returns correct body" do
+     response = get '/foo', {}, {'HTTP_USER_AGENT' => 'Foo Bar'}
+     expect(response.body).to be == "Hello World"
     end
   end
 
@@ -32,10 +31,9 @@ describe 'GET agent conditions' do
       end
     end
 
-    context "get /" do
-      let(:response){ get '/' }
-      it("returns correct status"){ expect(response.status).to be == 200 }
-      it("returns correct body"){ expect(response.body).to be == "Hello World" }
+    it "get / returns correct body" do
+      response = get '/'
+      expect(response.body).to be == "Hello World"
     end
   end
 
@@ -47,10 +45,9 @@ describe 'GET agent conditions' do
      end
    end
 
-   context "get /foo & HTTP_USER_AGENT = Foo Bar" do
-     let(:response){ get '/foo', {}, {'HTTP_USER_AGENT' => 'Foo Bar'} }
-     it("returns correct status"){ expect(response.status).to be == 200 }
-     it("returns correct body"){ expect(response.body).to be == "Hello Bar" }
+   it "get /foo & HTTP_USER_AGENT = Foo Bar returns correct body" do
+     response = get '/foo', {}, {'HTTP_USER_AGENT' => 'Foo Bar'}
+     expect(response.body).to be == "Hello Bar"
    end
   end
 
