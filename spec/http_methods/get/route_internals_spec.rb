@@ -1,5 +1,4 @@
 # encoding: utf-8
-#TODO not sure how to refactor these into rspec as the nested methods become unavailable
 require 'spec_helper'
 
 describe "route internals" do

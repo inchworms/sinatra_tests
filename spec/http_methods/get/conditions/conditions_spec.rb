@@ -85,14 +85,14 @@ describe "GET conditions" do
 
     context "get / without user and password" do
       let(:response){ get '/' }
-      it(""){ expect(response.status).to be == 403 }
-      it(""){ expect(response.body).to be == "not authorized" }
+      it("return status 403"){ expect(response.status).to be == 403 }
+      it("returns correct body"){ expect(response.body).to be == "not authorized" }
     end
 
     context "get / with username and password" do
       let(:response){ get '/', {}, {'QUERY_STRING' => 'user=foo&password=bar'} }
-      it(""){ expect(response.status).to be == 200 }
-      it(""){ expect(response.body).to be == 'authorized' }
+      it("return status 200"){ expect(response.status).to be == 200 }
+      it("return correct body"){ expect(response.body).to be == 'authorized' }
     end
   end
 

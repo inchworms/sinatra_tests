@@ -94,7 +94,7 @@ describe 'GET route invocations'do
     end
   end
 
-  context 'it' do
+  context 'ArgumentError' do
     let(:app) do
       Sinatra.new do
         get ('/:foo/:bar/:baz') do |foo, bar|
@@ -107,7 +107,7 @@ describe 'GET route invocations'do
     end
   end
 
-  context 'it' do
+  context 'ArgumentError' do
     let(:app) do
       Sinatra.new do
         get('/:foo/:bar/:baz') do |foo|
@@ -121,7 +121,7 @@ describe 'GET route invocations'do
     end
   end
 
-  context "it" do
+  context "ArgumentError" do
     let(:app) do
       Sinatra.new do
         get('/foo') do |foo|
@@ -135,7 +135,7 @@ describe 'GET route invocations'do
     end
   end
 
-  context "it" do
+  context "ArgumentError" do
     let(:app) do
       Sinatra.new do
         get('/:foo/:bar') do |foo, bar, baz|
