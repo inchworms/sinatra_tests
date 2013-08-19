@@ -78,17 +78,18 @@ describe "GET pattern matching" do
         get(Regexp.new('/page(?<format>.[^/?#]+)?')){ "format=#{params[:format]}" }
       end
     end
-    context "request: /page.html" do
-      let(:response){ get '/page.html' }
-      it("returns format=html"){ expect(response.body).to be == "format=.html" }
+
+    it "request: /page.html returns format=html" do
+      response = get '/page.html'
+      expect(response.body).to be == "format=.html"
     end
-    context "request: /page.xml" do
-      let(:response){ get '/page.xml' }
-      it(" returns format=xml"){ expect(response.body).to be == "format=.xml" }
+    it "request: /page.xml returns format=xml" do
+      response = get '/page.xml'
+      expect(response.body).to be == "format=.xml"
     end
-    context "request: /page" do
-      let(:response){ get '/page' }
-      it("returns no format"){ expect(response.body).to be == "format=" }
+    it "request: /page returns no format" do
+      response = get '/page'
+      expect(response.body).to be == "format="
     end
   end
 
