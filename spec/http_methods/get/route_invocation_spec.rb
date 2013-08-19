@@ -93,7 +93,7 @@ describe 'GET route invocations'do
       expect(response.body).to be == 'ab'
     end
   end
-
+#TODO: just one conetxt doesn't work :(
   context 'ArgumentError' do
     let(:app) do
       Sinatra.new do
