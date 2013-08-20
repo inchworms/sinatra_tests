@@ -92,19 +92,19 @@ describe "GET params" do
       expect(the_params[:bar]).to be == ["A", "B"]
     end
 
-    expected_params = {
-                    "emacs" => {
-                                "map"     => { "goto-line" => "M-g g" },
-                                "version" => "22.3.1"
-                                },
-                    "browser" => {
-                                "firefox" => {"engine" => {"name"=>"spidermonkey", "version"=>"1.7.0"}},
-                                "chrome"  => {"engine" => {"name"=>"V8", "version"=>"1.0"}}
-                                },
-                    "paste" => {"name"=>"hello world", "syntax"=>"ruby"}
-    }
-
     it "supports deeply nested params" do
+      expected_params = {
+                      "emacs" => {
+                                  "map"     => { "goto-line" => "M-g g" },
+                                  "version" => "22.3.1"
+                                  },
+                      "browser" => {
+                                  "firefox" => {"engine" => {"name"=>"spidermonkey", "version"=>"1.7.0"}},
+                                  "chrome"  => {"engine" => {"name"=>"V8", "version"=>"1.0"}}
+                                  },
+                      "paste" => {"name"=>"hello world", "syntax"=>"ruby"}
+      }
+
       get '/foo', expected_params
       expect(the_params).to be == expected_params
     end
