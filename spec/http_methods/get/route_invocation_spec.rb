@@ -93,60 +93,42 @@ describe 'GET route invocations'do
       expect(response.body).to be == 'ab'
     end
   end
-#TODO: just one conetxt doesn't work :(
-  context 'ArgumentError' do
-    let(:app) do
-      Sinatra.new do
-        get ('/:foo/:bar/:baz') do |foo, bar|
-          [201, {}, ["not working"]]
-        end
-      end
-    end
-    it ('raises an ArgumentError with block arity > 1 and too many values') do
-      expect { get '/a/b/c' }.to raise_error(ArgumentError)
-    end
-  end
 
   context 'ArgumentError' do
-    let(:app) do
-      Sinatra.new do
-        get('/:foo/:bar/:baz') do |foo|
-          [201, {}, ["not working"]] 
-        end
+    context 'block arity > 1 and too many values' do
+      let(:app) do
+        Sinatra.new { get ('/:foo/:bar/:baz'){ |foo, bar| } }
+      end
+      it ('raises an ArgumentError') do
+        expect { get '/a/b/c' }.to raise_error(ArgumentError)
       end
     end
 
-    it("raises an ArgumentError with block param arity 1 and too many values") do
-      expect { get '/a/b/c' }.to raise_error(ArgumentError)
-    end
-  end
-
-  context "ArgumentError" do
-    let(:app) do
-      Sinatra.new do
-        get('/foo') do |foo|
-          [201, {}, ["not working"]]
-        end
+    context 'block param arity 1 and too many values' do
+      let(:app) do
+        Sinatra.new { get('/:foo/:bar/:baz') { |foo| } }
+      end
+      it("raises an ArgumentError") do
+        expect { get '/a/b/c' }.to raise_error(ArgumentError)
       end
     end
 
-    it("raises an ArgumentError with block param arity 1 and no values") do
-      expect { get '/foo' }.to raise_error(ArgumentError)
-    end
-  end
-
-  context "ArgumentError" do
-    let(:app) do
-      Sinatra.new do
-        get('/:foo/:bar') do |foo, bar, baz|
-          [201, {}, ["not working"]] 
-        end
+    context "block param arity 1 and no values" do
+      let(:app) do
+        Sinatra.new { get('/foo') { |foo| } }
+      end
+      it("raises an ArgumentError") do
+        expect { get '/foo' }.to raise_error(ArgumentError)
       end
     end
 
-    it("raises an ArgumentError with block param arity >1 and too few values") do
-      expect { get '/a/b' }.to raise_error(ArgumentError)
+    context "block param arity >1 and too few values" do
+      let(:app) do
+        Sinatra.new { get('/:foo/:bar') { |foo, bar, baz| } }
+      end
+      it("raises an ArgumentError") do
+        expect { get '/a/b' }.to raise_error(ArgumentError)
+      end
     end
   end
-
 end
