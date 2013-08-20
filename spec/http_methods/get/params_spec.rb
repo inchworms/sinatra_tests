@@ -14,20 +14,20 @@ describe "GET params" do
       expect(response.body).to be == "Hello Horst!"
     end
   end
-#TODO: some explanation!
+
   context "indifferent hash" do
+    the_params = nil
     let(:app) do
       Sinatra.new do
         get '/:foo' do
-          bar = params['foo']
-          bar = params[:foo]
-          "working"
+          the_params = params.dup
         end
       end
     end
     it "exposes params with indifferent hash" do
-      response = get '/bar'
-      expect(response.body).to be == "working"
+      get '/bar'
+      expect(the_params['foo']).to be == "bar"
+      expect(the_params[:foo]).to be == "bar"
     end
   end
 
