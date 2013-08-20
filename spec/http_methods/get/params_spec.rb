@@ -87,19 +87,10 @@ describe "GET params" do
       expect(the_params["bar"][0]["foo"]).to eql("baz")
     end
 
-    let(:app) do
-      Sinatra.new do
-        get '/foo' do
-          the_params = params.dup
-        end
-      end
-    end
-
     it "supports arrays within params" do
       response = get '/foo?bar[]=A&bar[]=B'
       expect(the_params[:bar]).to be == ["A", "B"]
     end
-
 
     expected_params = {
                     "emacs" => {
@@ -112,14 +103,6 @@ describe "GET params" do
                                 },
                     "paste" => {"name"=>"hello world", "syntax"=>"ruby"}
     }
-   
-    let(:app) do
-      Sinatra.new do
-        get '/foo' do
-          the_params = params.dup
-        end
-      end
-    end
 
     it "supports deeply nested params" do
       get '/foo', expected_params
