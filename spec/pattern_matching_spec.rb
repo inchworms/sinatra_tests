@@ -50,7 +50,7 @@ describe "GET pattern matching" do
       end
     end
 
-    it "correctly extracts named captures" do
+    it "correctly extracts named captures like /this/is/a/test/" do
       response = get '/this/is/a/test/'
       expect(the_params[:one]).to be == 'this'
       expect(the_params[:two]).to be == 'is'
