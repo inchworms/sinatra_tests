@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe "GET host_condition" do
+describe "GET host condition" do
   context "passes to the next route when host_name does not match" do
     let(:app) do
       Sinatra.new do

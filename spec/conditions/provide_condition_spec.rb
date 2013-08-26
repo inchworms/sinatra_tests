@@ -189,7 +189,7 @@ describe 'GET provide conditions' do
       it("returns the correct body") { expect(response.body).to be == '*/*' }
     end
 
-     context "when sent '/stream' and HTTP_ACCEPT' => 'application/xml'" do
+    context "when sent '/stream' and HTTP_ACCEPT' => 'application/xml'" do
       let(:response) { get '/stream', {}, {'HTTP_ACCEPT' => 'application/xml'} }
       it("returns a 404") { expect(response.status).to be == 404 }
     end
@@ -208,20 +208,20 @@ describe 'GET provide conditions' do
 
     context "with '/' and HTTP_ACCEPT' => '*/*'" do
       let(:response){ get '/', {}, {'HTTP_ACCEPT' => '*/*'} }
-      it("returns correct Content-Type"){ expect(response.header['Content-Type']).to be == 'text/plain;charset=utf-8' }
-      it("returns correct body"){ expect(response.body).to be == 'txt' }
+      it("returns correct Content-Type as text/plain;charset=utf-8"){ expect(response.header['Content-Type']).to be == 'text/plain;charset=utf-8' }
+      it("returns correct body as txt"){ expect(response.body).to be == 'txt' }
     end
 
     context "with '/txt' and HTTP_ACCEPT' => 'text/plain'" do
       let(:response){ get '/txt', {}, {'HTTP_ACCEPT' => 'text/plain'} }
-      it("returns correct Content-Type"){ expect(response.header['Content-Type']).to be == 'text/plain;charset=utf-8' }
-      it("returns correct body"){ expect(response.body).to be == 'txt' }
+      it("returns correct Content-Type as text/plain;charset=utf-8"){ expect(response.header['Content-Type']).to be == 'text/plain;charset=utf-8' }
+      it("returns correct body as txt"){ expect(response.body).to be == 'txt' }
     end
 
     context "with '/' and HTTP_ACCEPT' => 'text/html'" do
       let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'text/html'} }
-      it("returns correct Content-Type"){ expect(response.header['Content-Type']).to be == 'text/html;charset=utf-8' }
-      it("returns correct body"){ expect(response.body).to be == 'html' }
+      it("returns correct Content-Type as text/html;charset=utf-8"){ expect(response.header['Content-Type']).to be == 'text/html;charset=utf-8' }
+      it("returns correct body as html"){ expect(response.body).to be == 'html' }
     end
   end
 
@@ -275,12 +275,12 @@ describe 'GET provide conditions' do
 
     context "when HTTP_ACCEPT = 'application/*'" do
       let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'application/*'} }
-      it("content_type is application/xml"){ expect(response.body).to be == 'application/xml;charset=utf-8' }
+      it("returns correct content_type as application/xml"){ expect(response.body).to be == 'application/xml;charset=utf-8' }
     end
 
     context "when HTTP_ACCEPT = '*/*'" do
       let(:response){ get '/', {}, {'HTTP_ACCEPT' => '*/*'} }
-      it("content_type is application/xml"){ expect(response.body).to be == 'application/xml;charset=utf-8' }
+      it("returns correct content_type as application/xml"){ expect(response.body).to be == 'application/xml;charset=utf-8' }
     end
   end
 
@@ -365,7 +365,7 @@ describe 'GET provide conditions' do
 
     context "when HTTP_ACCEPT = image/png;q=0.5, text/*" do
       let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'image/png;q=0.5, text/*'} }
-      it("prefers text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
+      it("prefers default q=1.0 setting of text/html"){ expect(response.body).to be == 'text/html;charset=utf-8' }
     end
   end
 
@@ -413,6 +413,9 @@ describe 'GET provide conditions' do
     end
   end
 
+#TODO what is 'profile' doing here? what are strings in params supposed to do? 
+# Are they commented out? 
+
   context 'properly handles quoted strings in parameters' do
     let(:app) do
       Sinatra.new do
@@ -442,6 +445,7 @@ describe 'GET provide conditions' do
         get('/', :provides => :js){ content_type }
       end
     end
+#TODO should we also be testing for when HTTP_ACCEPT is "text/javascript"?
 
     context "when HTTP_ACCEPT = application/javascript" do
       let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'application/javascript'} }
