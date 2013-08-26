@@ -15,12 +15,12 @@ describe "GET conditions" do
 
     context "get /bar" do
       let(:response){ get '/bar' }
-      it("returns expected status"){ expect(response.status).to be == 200 }
+      it("returns status 200"){ expect(response.status).to be == 200 }
     end
     
     context "get /foo" do
       let(:response){ get '/foo' }
-      it("returns expected status"){ expect(response.status).to be == 404 }
+      it("returns status 404"){ expect(response.status).to be == 404 }
     end
   end
 
@@ -36,12 +36,12 @@ describe "GET conditions" do
 
     context "/bar" do
       let(:response){ get '/bar' }
-      it("returns expected status"){ expect(response.status).to be == 200 }
+      it("returns status 200"){ expect(response.status).to be == 200 }
     end
 
     context "/foo" do
       let(:response){ get '/foo' }
-      it("returns expected status"){ expect(response.status).to be == 404 }
+      it("returns status 404"){ expect(response.status).to be == 404 }
     end
   end
 
@@ -56,7 +56,7 @@ describe "GET conditions" do
     end
 
    let(:response){ get '/bar' }
-   it("returns expected status"){ expect(response.status).to be == 200 }
+   it("returns status 200"){ expect(response.status).to be == 200 }
   end
 
   context 'allows custom route-conditions to be set via route options' do
