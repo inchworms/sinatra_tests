@@ -1,7 +1,7 @@
 # encoding: utf-8
 require 'spec_helper'
 
-describe "route internals" do
+describe "GET route internals" do
 
   it "returns the route signature" do
     signature = list = nil

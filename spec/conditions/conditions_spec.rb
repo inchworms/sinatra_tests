@@ -34,12 +34,12 @@ describe "GET conditions" do
       end
     end
 
-    context "/bar" do
+    context "get /bar" do
       let(:response){ get '/bar' }
       it("returns status 200"){ expect(response.status).to be == 200 }
     end
 
-    context "/foo" do
+    context "get /foo" do
       let(:response){ get '/foo' }
       it("returns status 404"){ expect(response.status).to be == 404 }
     end

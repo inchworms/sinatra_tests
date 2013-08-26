@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'GET route invocations'do
+describe 'GET route invocations' do
 
   context 'single url param' do
     let(:app) do
@@ -54,16 +54,20 @@ describe 'GET route invocations'do
     let(:app) do
       Sinatra.new do
         get '/*/foo/*/*' do
-          params['splat'].join "\n"
+          params['splat'].join " "
         end
       end
     end
 
-    it 'correctly extracts the parameters' do
-      expect(get('/bar/foo/bling/baz/boom').body).to be == "bar\nbling\nbaz/boom"
+    it 'correctly extracts the parameters /bar/foo/bling/baz' do
+      expect(get('/bar/foo/bling/baz').body).to be == "bar bling baz"
     end
 
-    it 'returns a 404 if not enough splats are provided' do
+    it 'correctly extracts the parameters when params /bar/foo/bling/baz/boom exceed splat definition ' do
+      expect(get('/bar/foo/bling/baz/boom').body).to be == "bar bling baz/boom"
+    end
+
+    it 'returns a 404 if not enough splats /bar/foo/baz are provided' do
       expect(get('/bar/foo/baz').status).to be == 404
     end
   end
@@ -88,7 +92,7 @@ describe 'GET route invocations'do
         end
       end
     end
-    it " with block param arity -1 (splat args)" do
+    it "with block param arity -1 (splat args)" do
       response = get '/a/b'
       expect(response.body).to be == 'ab'
     end

@@ -29,7 +29,7 @@ describe 'GET route flow' do
 
     let(:response) { get '/' }
     it('returns 295 as status') { expect(response.status).to be == 295 }
-    it('returns headers') { expect(response['Content-Type']).to be == 'text/plain' }
+    it('returns correct headers') { expect(response['Content-Type']).to be == 'text/plain' }
     it('returns correct body') { expect(response.body).to be == 'Hello World' }
 
   end
@@ -53,7 +53,7 @@ describe 'GET route flow' do
     let(:app) do
       Sinatra.new do
         after { status_was = status }
-        get('/'){ halt 500, 'error' }
+        get('/'){ halt 500, '' }
       end
     end
     it "sets response.status with halt" do
@@ -80,7 +80,7 @@ describe 'GET route flow' do
   end
   
   it 'transitions to the next matching route on pass' do
-    response =  get '/bar'
+    response = get '/bar'
     expect(the_params).not_to include('foo')
     expect(response.body).to be == 'Hello World'
   end
@@ -112,7 +112,6 @@ describe 'GET route flow' do
           pass do
             'this'
           end
-          'not this'
         end
       end
     end
