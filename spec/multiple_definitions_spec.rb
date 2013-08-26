@@ -1,13 +1,13 @@
 # encoding: utf-8
-
-require 'spec_helper'
+#
+ require 'spec_helper'
 
 describe 'GET multiple definitions of a route' do
   let(:app) do
     Sinatra.new do
       user_agent(/Mozilla/)
       get('/'){ 'Mozilla' }
-
+#TODO: Why does not get the first route when no user agent is set
       get('/'){ 'not Mozilla' }
     end
   end
