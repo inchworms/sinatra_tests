@@ -22,10 +22,10 @@ describe "GET host_condition" do
     end
   end
 
-   context 'adds hostname condition when it is in options' do
+   context 'adds hostname condition when hostname is in options' do
     let(:app) do
       Sinatra.new do 
-        get('/foo', :host => 'example.com'){ 'Hello World' }
+        get('/foo', :host => 'example.com'){}
       end
     end
 
