@@ -40,7 +40,7 @@ describe "GET params" do
         end
       end
     end
-    it "merges params correctly" do
+    it "merges /bar?baz=biz params correctly" do
       get '/bar?baz=biz'
       expect(the_params["foo"]).to be == "bar"
       expect(the_params["baz"]).to be == "biz"
@@ -53,12 +53,12 @@ describe "GET params" do
         get('/?:name?/?:city?'){ "Name=#{params[:name]};City=#{params[:city]}" }
       end
     end
-    it "both params are set" do
+    it "both /carla/berlin params are set" do
       response = get'/carla/berlin'
       expect(response.body).to be == "Name=carla;City=berlin"
     end
 
-    it "one param is set" do
+    it "one param /carla is set" do
       response = get'/carla'
       expect(response.body).to be == "Name=carla;City="
     end
@@ -117,6 +117,6 @@ describe "GET params" do
       end
     end
     let(:response){ get '/foo?article_id=2&comment[body]=awesome' }
-    it("preserves non-nested params"){ expect(response.body).to be == "article_id = 2; comment = awesome" }
+    it("preserves /foo?article_id=2&comment[body]=awesome"){ expect(response.body).to be == "article_id = 2; comment = awesome" }
   end
 end
