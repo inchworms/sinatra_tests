@@ -40,14 +40,14 @@ describe 'GET agent conditions' do
   context 'makes captures in user agent pattern available in params[:agent]' do
     let(:app) do
       Sinatra.new do
-        user_agent(/Foo (.*)/)
+        user_agent(/Baz (.*)/)
         get('/foo'){'Hello ' + params[:agent].first}
      end
    end
 
    it "get /foo & HTTP_USER_AGENT = Foo Bar returns correct body" do
-     response = get '/foo', {}, {'HTTP_USER_AGENT' => 'Foo Bar'}
-     expect(response.body).to be == "Hello Bar"
+     response = get '/foo', {}, {'HTTP_USER_AGENT' => 'Baz World'}
+     expect(response.body).to be == "Hello World"
    end
   end
 
