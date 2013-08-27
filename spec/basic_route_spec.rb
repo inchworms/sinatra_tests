@@ -13,7 +13,7 @@ describe "GET basic '/' route" do
   it("sets the header as foo"){ expect(response.header['Header']).to be == 'foo' }
   it("returns the complete body as string"){ expect(response.body).to be == 'abc' }
 
-  context "/hello routes" do
+  context "/named routes" do
     let(:app) do
       Sinatra.new do
         get('/hello'){ 'working' }
