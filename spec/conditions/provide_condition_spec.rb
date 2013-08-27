@@ -446,6 +446,10 @@ describe 'GET provide conditions' do
       end
     end
 #TODO should we also be testing for when HTTP_ACCEPT is "text/javascript"?
+    context "when HTTP_ACCEPT = text/javascript" do
+      let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'text/javascript'} }
+      it("the content-type is text/javascript"){ expect(response.body).to be == 'text/javascript;charset=utf-8' }
+    end
 
     context "when HTTP_ACCEPT = application/javascript" do
       let(:response){ get '/', {}, {'HTTP_ACCEPT' => 'application/javascript'} }
